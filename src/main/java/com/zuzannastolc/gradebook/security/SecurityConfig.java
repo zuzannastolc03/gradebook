@@ -23,7 +23,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(configurer ->
                 configurer
-                        .requestMatchers(HttpMethod.GET, "/").hasRole("TEACHER"));
+                        .requestMatchers(HttpMethod.GET, "/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/teachers").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/students").hasRole("STUDENT"));
+
         http.httpBasic(Customizer.withDefaults());
         http.csrf(Customizer.withDefaults());
         return http.build();
