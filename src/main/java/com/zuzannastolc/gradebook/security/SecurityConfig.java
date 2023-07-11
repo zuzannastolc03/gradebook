@@ -25,7 +25,9 @@ public class SecurityConfig {
                 configurer
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/teachers").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.GET, "/students").hasRole("STUDENT"));
+                        .requestMatchers(HttpMethod.GET, "/students").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/logged_username").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/logged_authorities").authenticated());
 
         http.httpBasic(Customizer.withDefaults());
         http.csrf(Customizer.withDefaults());
