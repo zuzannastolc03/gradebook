@@ -27,10 +27,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/teachers").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.GET, "/students").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET, "/logged_username").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/logged_authorities").authenticated());
+                        .requestMatchers(HttpMethod.GET, "/logged_authorities").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/addStudent").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.POST, "/addTeacher").hasRole("HEADTEACHER"));
 
         http.httpBasic(Customizer.withDefaults());
-        http.csrf(Customizer.withDefaults());
+        http.csrf().disable();
         return http.build();
     }
 }

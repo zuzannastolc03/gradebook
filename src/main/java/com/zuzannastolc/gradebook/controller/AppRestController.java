@@ -1,17 +1,22 @@
 package com.zuzannastolc.gradebook.controller;
 
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import com.zuzannastolc.gradebook.entity.Student;
+import com.zuzannastolc.gradebook.entity.Teacher;
+import com.zuzannastolc.gradebook.service.AppService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 @RestController
-public class TestRestController {
+public class AppRestController {
+    private AppService appService;
+    @Autowired
+    public AppRestController(AppService appService){
+        this.appService = appService;
+    }
     @GetMapping("/")
     public String homePage(){
         return "This is a home page of a gradebook.";
@@ -43,5 +48,16 @@ public class TestRestController {
             authorities = "Noboby has logged in!";
         }
         return authorities;
+    }
+    @PostMapping("/addStudent")
+    public Student addStudent(@RequestBody Student student){
+        Student dbStudent = appService.addNewStudent(student);
+        return dbStudent;
+    }
+
+    @PostMapping("/addTeacher")
+    public Teacher addTeacher(@RequestBody Teacher teacher){
+        Teacher dbTeacher = appService.addNewTeacher(teacher);
+        return dbTeacher;
     }
 }
