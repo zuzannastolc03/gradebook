@@ -1,11 +1,13 @@
 package com.zuzannastolc.gradebook.entity;
 
+import java.util.List;
+
 public class WebUser {
     private String userName;
 
     private String password;
 
-    private String roleName;
+    private List<String> roleName;
 
     public WebUser() {
 
@@ -27,11 +29,11 @@ public class WebUser {
         this.password = password;
     }
 
-    public String getRoleName() {
+    public List<String> getRoleName() {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
+    public void setRoleName(List<String> roleName) {
         this.roleName = roleName;
     }
 }

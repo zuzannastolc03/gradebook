@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 public class AppRestController {
     private AppService appService;
@@ -74,12 +76,15 @@ public class AppRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
         }
 
-        String roleName = theWebUser.getRoleName();
-        Role role = userService.findRoleByName(roleName);
-        if (role == null){
-            String errorMsg = "Invalid role.";
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        List<String> roleName = theWebUser.getRoleName();
+        for(String role: roleName){
+            Role tempRole = userService.findRoleByName(role);
+            if (tempRole == null){
+                String errorMsg = "Minimum one invalid role.";
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+            }
         }
+
 
         userService.save(theWebUser);
         return ResponseEntity.ok().build();

@@ -5,7 +5,6 @@ import com.zuzannastolc.gradebook.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class UserDAOImpl implements UserDAO{
@@ -43,7 +42,6 @@ public class UserDAOImpl implements UserDAO{
     }
 
     @Override
-    @Transactional
     public void save(User theUser) {
         entityManager.merge(theUser);
     }
