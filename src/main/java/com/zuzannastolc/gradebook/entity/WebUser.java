@@ -3,22 +3,27 @@ package com.zuzannastolc.gradebook.entity;
 import java.util.List;
 
 public class WebUser {
-    private String userName;
+    private String username;
 
     private String password;
 
-    private List<String> roleName;
+    private List<String> authorities;
 
     public WebUser() {
-
     }
 
-    public String getUserName() {
-        return userName;
+    public WebUser(String username, String password, List<String> authorities) {
+        this.username = username;
+        this.password = password;
+        this.authorities = authorities;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -29,11 +34,20 @@ public class WebUser {
         this.password = password;
     }
 
-    public List<String> getRoleName() {
-        return roleName;
+    public List<String> getAuthorities() {
+        return authorities;
     }
 
-    public void setRoleName(List<String> roleName) {
-        this.roleName = roleName;
+    public void setAuthorities(List<String> authorities) {
+        this.authorities = authorities;
+    }
+
+    @Override
+    public String toString() {
+        return "WebUser{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", authorities=" + authorities +
+                '}';
     }
 }

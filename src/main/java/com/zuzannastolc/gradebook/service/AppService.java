@@ -1,9 +1,11 @@
 package com.zuzannastolc.gradebook.service;
 
-import com.zuzannastolc.gradebook.entity.Student;
-import com.zuzannastolc.gradebook.entity.Teacher;
+import com.zuzannastolc.gradebook.entity.User;
+import com.zuzannastolc.gradebook.entity.WebUser;
 
 public interface AppService {
-    Student addNewStudent(Student student);
-    Teacher addNewTeacher(Teacher teacher);
+//    Student addNewStudent(Student student);
+//    Teacher addNewTeacher(Teacher teacher);
+    void addNewUserWithAuthorities(WebUser webUser);
+    User findByUsername(String username);
 }

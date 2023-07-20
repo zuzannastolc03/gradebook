@@ -1,11 +1,13 @@
 package com.zuzannastolc.gradebook.entity;
 
+
 import jakarta.persistence.*;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,11 +19,9 @@ public class User {
     private String password;
     @Column(name = "enabled")
     private boolean enabled;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Collection<Role> roles;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private List<Authority> authorities;
 
     public User() {
     }
@@ -64,12 +64,20 @@ public class User {
         this.enabled = enabled;
     }
 
-    public Collection<Role> getRoles() {
-        return roles;
+    public List<Authority> getAuthorities() {
+        return authorities;
     }
 
-    public void setRoles(Collection<Role> roles) {
-        this.roles = roles;
+    public void setAuthorities(List<Authority> authorities) {
+        this.authorities = authorities;
+    }
+
+    public void addAuthority(Authority authority) {
+        if (authorities == null) {
+            authorities = new ArrayList<>();
+        }
+        authorities.add(authority);
+
     }
 
     @Override
