@@ -25,16 +25,16 @@ VALUES
 
 CREATE TABLE `authorities` (
   `authority_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int DEFAULT NULL,
   `authority` varchar(50) DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
   PRIMARY KEY (`authority_id`),
-  UNIQUE KEY (`user_id`, `authority`),
+  UNIQUE KEY (`authority`, `user_id`),
   FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
-INSERT INTO `authorities` (`user_id`, `authority`)
+INSERT INTO `authorities` (`authority`, `user_id`)
 VALUES 
-(2, 'ROLE_STUDENT'),
-(1, 'ROLE_TEACHER'),
-(3, 'ROLE_TEACHER'),
-(3, 'ROLE_HEADTEACHER');
+('ROLE_STUDENT', 2),
+('ROLE_TEACHER', 1),
+('ROLE_TEACHER', 3),
+('ROLE_HEADTEACHER', 3);

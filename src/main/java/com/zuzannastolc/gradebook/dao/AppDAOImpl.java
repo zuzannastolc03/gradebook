@@ -33,17 +33,4 @@ public class AppDAOImpl implements AppDAO {
         }
         return user;
     }
-
-
-//    @Override
-//    public Student addNewStudent(Student student) {
-//        Student tempStudent = entityManager.merge(student);
-//        return tempStudent;
-//    }
-//
-//    @Override
-//    public Teacher addNewTeacher(Teacher teacher) {
-//        Teacher tempTeacher = entityManager.merge(teacher);
-//        return tempTeacher;
-//    }
 }
