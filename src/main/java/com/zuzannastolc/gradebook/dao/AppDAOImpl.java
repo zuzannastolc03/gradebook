@@ -1,5 +1,7 @@
 package com.zuzannastolc.gradebook.dao;
 
+import com.zuzannastolc.gradebook.entity.Student;
+import com.zuzannastolc.gradebook.entity.Teacher;
 import com.zuzannastolc.gradebook.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -22,7 +24,7 @@ public class AppDAOImpl implements AppDAO {
     }
 
     @Override
-    public User findByUsername(String username) {
+    public User findUserByUsername(String username) {
         TypedQuery<User> theQuery = entityManager.createQuery("from User where username=:theData", User.class);
         theQuery.setParameter("theData", username);
         User user = null;
@@ -33,4 +35,15 @@ public class AppDAOImpl implements AppDAO {
         }
         return user;
     }
+
+    @Override
+    public void addNewStudent(Student student) {
+        entityManager.persist(student);
+    }
+
+    @Override
+    public void addNewTeacher(Teacher teacher) {
+        entityManager.persist(teacher);
+    }
+
 }
