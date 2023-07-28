@@ -44,7 +44,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/logged_authorities").authenticated()
                         .requestMatchers(HttpMethod.POST, "/add_new_user").hasRole("HEADTEACHER")
                         .requestMatchers(HttpMethod.POST, "/add_new_student").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.POST, "/add_new_teacher").hasRole("HEADTEACHER"));
+                        .requestMatchers(HttpMethod.POST, "/add_new_teacher").hasRole("HEADTEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/disable_user").hasRole("HEADTEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/change_password").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/update_student").hasRole("HEADTEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/update_teacher").hasRole("HEADTEACHER"));
 
         http.httpBasic(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);

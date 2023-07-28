@@ -22,6 +22,10 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private List<Authority> authorities;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Student student;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Teacher teacher;
 
     public User() {
     }
@@ -70,6 +74,22 @@ public class User {
 
     public void setAuthorities(List<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public Teacher getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 
     public void addAuthority(Authority authority) {

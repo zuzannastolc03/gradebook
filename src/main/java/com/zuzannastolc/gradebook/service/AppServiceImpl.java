@@ -3,6 +3,7 @@ package com.zuzannastolc.gradebook.service;
 import com.zuzannastolc.gradebook.dao.AppDAO;
 import com.zuzannastolc.gradebook.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,17 @@ public class AppServiceImpl implements AppService {
     public AppServiceImpl(AppDAO appDAO) {
         this.appDAO = appDAO;
     }
+
+    @Override
+    public String getLoggedUsername(Authentication authentication) {
+        return appDAO.getLoggedUsername(authentication);
+    }
+
+    @Override
+    public String getLoggedAuthorities(Authentication authentication) {
+        return appDAO.getLoggedAuthorities(authentication);
+    }
+
 
     @Override
     @Transactional
@@ -47,13 +59,56 @@ public class AppServiceImpl implements AppService {
     @Override
     @Transactional
     public void addNewTeacher(Teacher teacher) {
-        String username = generateUsername(teacher.getFirstName(), teacher.getLastName(), false,0);
+        String username = generateUsername(teacher.getFirstName(), teacher.getLastName(), false, 0);
         String password = "{noop}" + teacher.getFirstName().toLowerCase();
         User user = new User(username, password, true);
         Authority authority = new Authority("ROLE_TEACHER");
         user.addAuthority(authority);
         teacher.setUser(user);
         appDAO.addNewTeacher(teacher);
+    }
+
+    @Override
+    @Transactional
+    public void disableUser(User user) {
+        user.setEnabled(false);
+        appDAO.updateUser(user);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(User user, String newPassword) {
+        user.setPassword("{noop}" + newPassword);
+        appDAO.updateUser(user);
+    }
+
+    @Override
+    @Transactional
+    public void updateStudentWithUser(Student newStudent, Student oldStudent) {
+        String username = generateUsername(newStudent.getFirstName(), newStudent.getLastName(), true, 0);
+        String password = "{noop}" + newStudent.getFirstName().toLowerCase();
+        User user = oldStudent.getUser();
+        user.setUsername(username);
+        user.setPassword(password);
+        appDAO.updateUser(user);
+        oldStudent.setFirstName(newStudent.getFirstName());
+        oldStudent.setLastName(newStudent.getLastName());
+        oldStudent.setClassName(newStudent.getClassName());
+        appDAO.updateStudent(oldStudent);
+    }
+
+    @Override
+    @Transactional
+    public void updateTeacherWithUser(Teacher newTeacher, Teacher oldTeacher) {
+        String username = generateUsername(newTeacher.getFirstName(), newTeacher.getLastName(), false, 0);
+        String password = "{noop}" + newTeacher.getFirstName().toLowerCase();
+        User user = oldTeacher.getUser();
+        user.setUsername(username);
+        user.setPassword(password);
+        appDAO.updateUser(user);
+        oldTeacher.setFirstName(newTeacher.getFirstName());
+        oldTeacher.setLastName(newTeacher.getLastName());
+        appDAO.updateTeacher(oldTeacher);
     }
 
     public String generateUsername(String firstName, String lastName, boolean isAStudent, int i) {
@@ -63,13 +118,12 @@ public class AppServiceImpl implements AppService {
         }
         if (isAStudent) {
             username = username + "@student.school.com";
-        }
-        else{
+        } else {
             username = username + "@school.com";
         }
         User user = findUserByUsername(username);
         if (user != null) {
-            return generateUsername(firstName, lastName, isAStudent, i+1);
+            return generateUsername(firstName, lastName, isAStudent, i + 1);
         } else {
             return username;
         }

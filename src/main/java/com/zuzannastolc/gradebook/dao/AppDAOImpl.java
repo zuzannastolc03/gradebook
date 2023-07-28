@@ -6,6 +6,7 @@ import com.zuzannastolc.gradebook.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Repository;
 
 
@@ -16,6 +17,28 @@ public class AppDAOImpl implements AppDAO {
     @Autowired
     public AppDAOImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    @Override
+    public String getLoggedUsername(Authentication authentication) {
+        String username;
+        try {
+            username = authentication.getName();
+        } catch (Exception ex) {
+            username = "Nobody has logged in!";
+        }
+        return username;
+    }
+
+    @Override
+    public String getLoggedAuthorities(Authentication authentication) {
+        String authorities;
+        try {
+            authorities = authentication.getAuthorities().toString();
+        } catch (Exception ex) {
+            authorities = "Nobody has logged in!";
+        }
+        return authorities;
     }
 
     @Override
@@ -43,6 +66,21 @@ public class AppDAOImpl implements AppDAO {
 
     @Override
     public void addNewTeacher(Teacher teacher) {
+        entityManager.persist(teacher);
+    }
+
+    @Override
+    public void updateUser(User user) {
+        entityManager.persist(user);
+    }
+
+    @Override
+    public void updateStudent(Student student) {
+        entityManager.persist(student);
+    }
+
+    @Override
+    public void updateTeacher(Teacher teacher) {
         entityManager.persist(teacher);
     }
 
