@@ -1,13 +1,19 @@
 package com.zuzannastolc.gradebook.dao;
 
+import com.zuzannastolc.gradebook.entity.SchoolClass;
 import com.zuzannastolc.gradebook.entity.Student;
 import com.zuzannastolc.gradebook.entity.Teacher;
 import com.zuzannastolc.gradebook.entity.User;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 @Repository
@@ -18,6 +24,7 @@ public class AppDAOImpl implements AppDAO {
     public AppDAOImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
+
 
     @Override
     public String getLoggedUsername(Authentication authentication) {
@@ -48,11 +55,11 @@ public class AppDAOImpl implements AppDAO {
 
     @Override
     public User findUserByUsername(String username) {
-        TypedQuery<User> theQuery = entityManager.createQuery("from User where username=:theData", User.class);
-        theQuery.setParameter("theData", username);
+        Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.users where username = :username", User.class);
+        theQuery.setParameter("username", username);
         User user = null;
         try {
-            user = theQuery.getSingleResult();
+            user = (User)theQuery.getSingleResult();
         } catch (Exception e) {
             user = null;
         }
@@ -82,6 +89,53 @@ public class AppDAOImpl implements AppDAO {
     @Override
     public void updateTeacher(Teacher teacher) {
         entityManager.persist(teacher);
+    }
+
+    @Override
+    public List<String> findAllClasses() {
+        Query theQuery = entityManager.createNativeQuery("SELECT class_name FROM gradebook.classes");
+        List<?> tempClasses = theQuery.getResultList();
+        List<String> classes = new ArrayList<>();
+        for (Object o : tempClasses) {
+            String s = o.toString();
+            classes.add(s);
+        }
+        return classes;
+    }
+
+    @Override
+    public SchoolClass findClassByClassName(String className) {
+        Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.classes where classes.class_name = :className", SchoolClass.class);
+        theQuery.setParameter("className", className);
+        SchoolClass schoolClass = null;
+        try {
+            schoolClass = (SchoolClass) theQuery.getSingleResult();
+        } catch (Exception ex) {
+            schoolClass = null;
+        }
+        return schoolClass;
+    }
+
+    @Override
+    public void addNewClass(SchoolClass schoolClass) {
+        entityManager.persist(schoolClass);
+    }
+
+    @Override
+    public List<?> getStudentsInClass(String className) {
+        SchoolClass schoolClass = null;
+        try {
+            schoolClass = findClassByClassName(className);;
+        } catch (Exception ex) {
+            schoolClass = null;
+        }
+        if(schoolClass == null){
+            return new ArrayList<String>(Collections.singleton("Class: " + className + " doesn't exist."));
+        }
+        int class_id = schoolClass.getClassId();
+        Query theQuery = entityManager.createNativeQuery("SELECT student_id, first_name, last_name FROM gradebook.students where class_id = :classId");
+        theQuery.setParameter("classId", class_id);
+        return (List<?>) theQuery.getResultList();
     }
 
 }

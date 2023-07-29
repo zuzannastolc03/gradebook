@@ -4,6 +4,7 @@ USE `gradebook`;
 
 DROP TABLE IF EXISTS `teachers`;
 DROP TABLE IF EXISTS `students`;
+DROP TABLE IF EXISTS `classes`;
 DROP TABLE IF EXISTS `authorities`;
 DROP TABLE IF EXISTS `users`;
 
@@ -17,12 +18,12 @@ CREATE TABLE `users` (
   UNIQUE KEY (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
-
 INSERT INTO `users` (`username`,`password`,`enabled`)
 VALUES 
 ('john.johnson@school.com','{noop}john',1),
 ('mary.marys@student.school.com','{noop}mary',1),
-('susan.susanes@school.com','{noop}susan',1);
+('susan.susanes@school.com','{noop}susan',1),
+('jack.jackson@student.school.com','{noop}jack',1);
 
 
 CREATE TABLE `authorities` (
@@ -38,24 +39,44 @@ CREATE TABLE `authorities` (
 INSERT INTO `authorities` (`authority`, `user_id`)
 VALUES 
 ('ROLE_STUDENT', 2),
+('ROLE_STUDENT', 4),
 ('ROLE_TEACHER', 1),
 ('ROLE_TEACHER', 3),
 ('ROLE_HEADTEACHER', 3);
+
+
+CREATE TABLE `classes` (
+  `class_id` int NOT NULL AUTO_INCREMENT,
+  `class_name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`class_id`),
+  UNIQUE KEY (`class_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+INSERT INTO `classes` (`class_name`)
+VALUES 
+('1a'),
+('2b'),
+('3c');
+
 
 CREATE TABLE `students` (
   `student_id` int NOT NULL AUTO_INCREMENT,
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
-  `class_name` varchar(5) DEFAULT NULL,
+  `class_id` int DEFAULT NULL,
   `user_id` int DEFAULT NULL,
   PRIMARY KEY (`student_id`),
+  FOREIGN KEY (`class_id`) REFERENCES `classes` (`class_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
   ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
-INSERT INTO `students` (`first_name`, `last_name`, `class_name`, `user_id`)
+INSERT INTO `students` (`first_name`, `last_name`, `class_id`, `user_id`)
 VALUES 
-('Mary', 'Marys', '1a', 2);
+('Mary', 'Marys', 1, 2),
+('Jack', 'Jackson', 1, 4);
+
 
 CREATE TABLE `teachers` (
   `teacher_id` int NOT NULL AUTO_INCREMENT,

@@ -1,9 +1,6 @@
 package com.zuzannastolc.gradebook.controller;
 
-import com.zuzannastolc.gradebook.entity.Student;
-import com.zuzannastolc.gradebook.entity.Teacher;
-import com.zuzannastolc.gradebook.entity.User;
-import com.zuzannastolc.gradebook.entity.WebUser;
+import com.zuzannastolc.gradebook.entity.*;
 import com.zuzannastolc.gradebook.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -48,7 +48,7 @@ public class AppRestController {
     }
 
     @PostMapping("/add_new_user")
-    public ResponseEntity addNewUser(@RequestBody WebUser webUser) {
+    public ResponseEntity<?> addNewUser(@RequestBody WebUser webUser) {
         String username = webUser.getUsername();
         User user = appService.findUserByUsername(username);
         if (user != null) {
@@ -61,23 +61,24 @@ public class AppRestController {
     }
 
     @PostMapping("/add_new_student")
-    public ResponseEntity addNewStudent(@RequestBody Student student) {
+    public ResponseEntity<?> addNewStudent(@RequestBody Student student) {
+        String className = student.getSchoolClass().getClassName();
         appService.addNewStudent(student);
         String msg = "Added a new student: " + student.getUser().getUsername();
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
     @PostMapping("/add_new_teacher")
-    public ResponseEntity addNewTeacher(@RequestBody Teacher teacher) {
+    public ResponseEntity<?> addNewTeacher(@RequestBody Teacher teacher) {
         appService.addNewTeacher(teacher);
         String msg = "Added a new teacher: " + teacher.getUser().getUsername();
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
     @PutMapping("/disable_user")
-    public ResponseEntity disableUser(@RequestParam String username) {
+    public ResponseEntity<?> disableUser(@RequestParam String username) {
         User user = appService.findUserByUsername(username);
-        if(user == null){
+        if (user == null) {
             String errorMsg = "Something went wrong. Probably the username is incorrect.";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
         } else if (!user.isEnabled()) {
@@ -90,10 +91,10 @@ public class AppRestController {
     }
 
     @PutMapping("/change_password")
-    public ResponseEntity changePassword(Authentication authentication, @RequestParam String oldPassword, @RequestParam String newPassword) {
+    public ResponseEntity<?> changePassword(Authentication authentication, @RequestParam String oldPassword, @RequestParam String newPassword) {
         String username = appService.getLoggedUsername(authentication);
         User user = appService.findUserByUsername(username);
-        if(!Objects.equals(user.getPassword(), "{noop}"+oldPassword)) {
+        if (!Objects.equals(user.getPassword(), "{noop}" + oldPassword)) {
             String errorMsg = "Your password is incorrect. Try again.";
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMsg);
         }
@@ -103,14 +104,14 @@ public class AppRestController {
     }
 
     @PutMapping("/update_student")
-    public ResponseEntity updateStudent(@RequestBody Student student, @RequestParam String username){
+    public ResponseEntity<?> updateStudent(@RequestBody Student student, @RequestParam String username) {
         User user = appService.findUserByUsername(username);
-        if(user == null){
+        if (user == null) {
             String errorMsg = "User: " + username + " doesn't exist.";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
         }
         Student tempStudent = user.getStudent();
-        if(tempStudent == null){
+        if (tempStudent == null) {
             String errorMsg = "Something went wrong. Probably indicated user is not a student.";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
         }
@@ -120,19 +121,42 @@ public class AppRestController {
     }
 
     @PutMapping("/update_teacher")
-    public ResponseEntity updateTeacher(@RequestBody Teacher teacher, @RequestParam String username){
+    public ResponseEntity<?> updateTeacher(@RequestBody Teacher teacher, @RequestParam String username) {
         User user = appService.findUserByUsername(username);
-        if(user == null){
+        if (user == null) {
             String errorMsg = "User: " + username + " doesn't exist.";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
         }
         Teacher tempTeacher = user.getTeacher();
-        if(tempTeacher == null){
+        if (tempTeacher == null) {
             String errorMsg = "Something went wrong. Probably indicated user is not a teacher.";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
         }
         appService.updateTeacherWithUser(teacher, tempTeacher);
         String msg = "Updated from teacher: " + username + " to teacher: " + tempTeacher.getUser().getUsername();
         return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+    @PostMapping("/add_new_class")
+    public ResponseEntity<?> addNewClass(@RequestBody SchoolClass schoolClass) {
+        SchoolClass tempSchoolClass = appService.findClassByClassName(schoolClass.getClassName());
+        if (tempSchoolClass != null) {
+            String errorMsg = "Class name: " + schoolClass.getClassName() + " already exists!";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        appService.addNewClass(schoolClass);
+        String msg = "Added a new class: " + schoolClass.getClassName();
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+
+    @GetMapping("/classes_list")
+    public List<?> findAllClasses() {
+        return appService.findAllClasses();
+    }
+
+    @GetMapping("/students_in_class")
+    public List<?> getStudentsInClass(String className) throws Exception {
+        return appService.getStudentsInClass(className);
     }
 }

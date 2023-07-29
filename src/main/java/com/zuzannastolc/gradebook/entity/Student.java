@@ -1,5 +1,6 @@
 package com.zuzannastolc.gradebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,8 +14,10 @@ public class Student {
     private String firstName;
     @Column(name = "last_name")
     private String lastName;
-    @Column(name = "class_name")
-    private String className;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "class_id")
+    private SchoolClass schoolClass;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
@@ -22,10 +25,9 @@ public class Student {
     public Student() {
     }
 
-    public Student(String firstName, String lastName, String className) {
+    public Student(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.className = className;
     }
 
     public int getStudent_id() {
@@ -52,12 +54,12 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public String getClassName() {
-        return className;
+    public SchoolClass getSchoolClass() {
+        return schoolClass;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    public void setSchoolClass(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
     }
 
     public User getUser() {
@@ -74,7 +76,6 @@ public class Student {
                 "student_id=" + student_id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", className='" + className + '\'' +
                 ", user=" + user +
                 '}';
     }

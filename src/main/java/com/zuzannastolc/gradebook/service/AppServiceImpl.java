@@ -7,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class AppServiceImpl implements AppService {
     private AppDAO appDAO;
@@ -93,7 +95,6 @@ public class AppServiceImpl implements AppService {
         appDAO.updateUser(user);
         oldStudent.setFirstName(newStudent.getFirstName());
         oldStudent.setLastName(newStudent.getLastName());
-        oldStudent.setClassName(newStudent.getClassName());
         appDAO.updateStudent(oldStudent);
     }
 
@@ -111,10 +112,33 @@ public class AppServiceImpl implements AppService {
         appDAO.updateTeacher(oldTeacher);
     }
 
+    @Override
+    public List<String> findAllClasses() {
+        return appDAO.findAllClasses();
+    }
+
+    @Override
+    public SchoolClass findClassByClassName(String className) {
+        return appDAO.findClassByClassName(className);
+    }
+
+    @Override
+    @Transactional
+    public void addNewClass(SchoolClass schoolClass) {
+        appDAO.addNewClass(schoolClass);
+    }
+
+
+    @Override
+    public List<?> getStudentsInClass(String className) {
+        return appDAO.getStudentsInClass(className);
+    }
+
+
     public String generateUsername(String firstName, String lastName, boolean isAStudent, int i) {
         String username = firstName.toLowerCase() + "." + lastName.toLowerCase();
         if (i != 0) {
-            username = username + String.valueOf(i);
+            username = username + i;
         }
         if (isAStudent) {
             username = username + "@student.school.com";
