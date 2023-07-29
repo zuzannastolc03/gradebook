@@ -7,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -131,6 +133,15 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public List<?> getStudentsInClass(String className) {
+        SchoolClass schoolClass = null;
+        try {
+            schoolClass = findClassByClassName(className);
+        } catch (Exception ex) {
+            schoolClass = null;
+        }
+        if(schoolClass == null){
+            return new ArrayList<String>(Collections.singleton("Class: " + className + " doesn't exist."));
+        }
         return appDAO.getStudentsInClass(className);
     }
 

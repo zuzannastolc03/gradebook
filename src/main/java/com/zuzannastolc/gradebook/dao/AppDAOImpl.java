@@ -7,7 +7,6 @@ import com.zuzannastolc.gradebook.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Repository;
 
@@ -123,15 +122,7 @@ public class AppDAOImpl implements AppDAO {
 
     @Override
     public List<?> getStudentsInClass(String className) {
-        SchoolClass schoolClass = null;
-        try {
-            schoolClass = findClassByClassName(className);;
-        } catch (Exception ex) {
-            schoolClass = null;
-        }
-        if(schoolClass == null){
-            return new ArrayList<String>(Collections.singleton("Class: " + className + " doesn't exist."));
-        }
+        SchoolClass schoolClass = findClassByClassName(className);
         int class_id = schoolClass.getClassId();
         Query theQuery = entityManager.createNativeQuery("SELECT student_id, first_name, last_name FROM gradebook.students where class_id = :classId");
         theQuery.setParameter("classId", class_id);
