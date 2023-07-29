@@ -14,7 +14,7 @@ public interface AppService {
 
     User findUserByUsername(String username);
 
-    void addNewStudent(Student student);
+    void addNewStudent(Student student, SchoolClass schoolClass);
 
     void addNewTeacher(Teacher teacher);
 

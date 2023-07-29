@@ -50,13 +50,14 @@ public class AppServiceImpl implements AppService {
 
     @Override
     @Transactional
-    public void addNewStudent(Student student) {
+    public void addNewStudent(Student student, SchoolClass schoolClass) {
         String username = generateUsername(student.getFirstName(), student.getLastName(), true, 0);
         String password = "{noop}" + student.getFirstName().toLowerCase();
         User user = new User(username, password, true);
         Authority authority = new Authority("ROLE_STUDENT");
         user.addAuthority(authority);
         student.setUser(user);
+        student.setSchoolClass(schoolClass);
         appDAO.addNewStudent(student);
     }
 

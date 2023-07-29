@@ -59,9 +59,13 @@ public class AppRestController {
     }
 
     @PostMapping("/add_new_student")
-    public ResponseEntity<?> addNewStudent(@RequestBody Student student) {
-        String className = student.getSchoolClass().getClassName();
-        appService.addNewStudent(student);
+    public ResponseEntity<?> addNewStudent(@RequestBody Student student, @RequestParam String className) {
+        SchoolClass schoolClass = appService.findClassByClassName(className);
+        if(schoolClass == null){
+            String errorMsg = "Class: " + className + " doesn't exist.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        appService.addNewStudent(student, schoolClass);
         String msg = "Added a new student: " + student.getUser().getUsername();
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
@@ -139,7 +143,7 @@ public class AppRestController {
     public ResponseEntity<?> addNewClass(@RequestBody SchoolClass schoolClass) {
         SchoolClass tempSchoolClass = appService.findClassByClassName(schoolClass.getClassName());
         if (tempSchoolClass != null) {
-            String errorMsg = "Class name: " + schoolClass.getClassName() + " already exists!";
+            String errorMsg = "Class name: " + schoolClass.getClassName() + " already exists.";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
         }
         appService.addNewClass(schoolClass);
