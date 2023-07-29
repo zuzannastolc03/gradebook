@@ -8,7 +8,7 @@ public class Teacher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "teacher_id")
-    private int teacher_id;
+    private int teacherId;
     @Column(name = "first_name")
     private String firstName;
     @Column(name = "last_name")
@@ -25,12 +25,12 @@ public class Teacher {
         this.lastName = lastName;
     }
 
-    public int getTeacher_id() {
-        return teacher_id;
+    public int getTeacherId() {
+        return teacherId;
     }
 
-    public void setTeacher_id(int teacher_id) {
-        this.teacher_id = teacher_id;
+    public void setTeacherId(int teacherId) {
+        this.teacherId = teacherId;
     }
 
     public String getFirstName() {
@@ -60,7 +60,7 @@ public class Teacher {
     @Override
     public String toString() {
         return "Teacher{" +
-                "teacher_id=" + teacher_id +
+                "teacherId=" + teacherId +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", user=" + user +

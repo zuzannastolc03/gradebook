@@ -2,6 +2,7 @@ CREATE DATABASE  IF NOT EXISTS `gradebook`;
 USE `gradebook`;
 
 
+DROP TABLE IF EXISTS `subjects`;
 DROP TABLE IF EXISTS `teachers`;
 DROP TABLE IF EXISTS `students`;
 DROP TABLE IF EXISTS `classes`;
@@ -92,3 +93,17 @@ INSERT INTO `teachers` (`first_name`, `last_name`, `user_id`)
 VALUES 
 ('John', 'Johnson', 1),
 ('Susan', 'Susanes', 3);
+
+
+CREATE TABLE `subjects` (
+  `subject_id` int NOT NULL AUTO_INCREMENT,
+  `subject_name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`subject_id`),
+  UNIQUE KEY (`subject_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+INSERT INTO `subjects` (`subject_name`)
+VALUES 
+('Maths'),
+('English'),
+('Information Technology');

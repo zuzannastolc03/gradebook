@@ -61,7 +61,7 @@ public class AppRestController {
     @PostMapping("/add_new_student")
     public ResponseEntity<?> addNewStudent(@RequestBody Student student, @RequestParam String className) {
         SchoolClass schoolClass = appService.findClassByClassName(className);
-        if(schoolClass == null){
+        if (schoolClass == null) {
             String errorMsg = "Class: " + className + " doesn't exist.";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
         }
@@ -158,7 +158,20 @@ public class AppRestController {
     }
 
     @GetMapping("/students_in_class")
-    public List<?> getStudentsInClass(String className) throws Exception {
+    public List<?> getStudentsInClass(String className) {
         return appService.getStudentsInClass(className);
     }
+
+    @PostMapping("/add_new_subject")
+    public ResponseEntity<?> addNewSubject(@RequestBody Subject subject) {
+        Subject tempSubject = appService.findSubjectBySubjectName(subject.getSubjectName());
+        if (tempSubject != null) {
+            String errorMsg = "Subject name: " + subject.getSubjectName() + " already exists.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        appService.addNewSubject(subject);
+        String msg = "Added a new subject: " + subject.getSubjectName();
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
 }

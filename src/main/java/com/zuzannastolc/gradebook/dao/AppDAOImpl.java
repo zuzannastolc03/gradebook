@@ -1,9 +1,6 @@
 package com.zuzannastolc.gradebook.dao;
 
-import com.zuzannastolc.gradebook.entity.SchoolClass;
-import com.zuzannastolc.gradebook.entity.Student;
-import com.zuzannastolc.gradebook.entity.Teacher;
-import com.zuzannastolc.gradebook.entity.User;
+import com.zuzannastolc.gradebook.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +124,24 @@ public class AppDAOImpl implements AppDAO {
         Query theQuery = entityManager.createNativeQuery("SELECT student_id, first_name, last_name FROM gradebook.students where class_id = :classId");
         theQuery.setParameter("classId", class_id);
         return (List<?>) theQuery.getResultList();
+    }
+
+    @Override
+    public Subject findSubjectBySubjectName(String subjectName) {
+        Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.subjects where subject_name = :subjectName", Subject.class);
+        theQuery.setParameter("subjectName", subjectName);
+        Subject subject = null;
+        try {
+            subject = (Subject) theQuery.getSingleResult();
+        } catch (Exception e) {
+            subject = null;
+        }
+        return subject;
+    }
+
+    @Override
+    public void addNewSubject(Subject subject) {
+        entityManager.persist(subject);
     }
 
 }

@@ -29,4 +29,6 @@ public interface AppService {
     SchoolClass findClassByClassName(String className);
     void addNewClass(SchoolClass schoolClass);
     List<?> getStudentsInClass(String className);
+    Subject findSubjectBySubjectName(String subjectName);
+    void addNewSubject(Subject subject);
 }

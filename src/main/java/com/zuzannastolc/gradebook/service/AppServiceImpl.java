@@ -140,10 +140,21 @@ public class AppServiceImpl implements AppService {
         } catch (Exception ex) {
             schoolClass = null;
         }
-        if(schoolClass == null){
+        if (schoolClass == null) {
             return new ArrayList<String>(Collections.singleton("Class: " + className + " doesn't exist."));
         }
         return appDAO.getStudentsInClass(className);
+    }
+
+    @Override
+    public Subject findSubjectBySubjectName(String subjectName) {
+        return appDAO.findSubjectBySubjectName(subjectName);
+    }
+
+    @Override
+    @Transactional
+    public void addNewSubject(Subject subject) {
+        appDAO.addNewSubject(subject);
     }
 
 

@@ -8,7 +8,7 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_id")
-    private int student_id;
+    private int studentId;
     @Column(name = "first_name")
     private String firstName;
     @Column(name = "last_name")
@@ -29,12 +29,12 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public int getStudent_id() {
-        return student_id;
+    public int getStudentId() {
+        return studentId;
     }
 
-    public void setStudent_id(int student_id) {
-        this.student_id = student_id;
+    public void setStudentId(int studentId) {
+        this.studentId = studentId;
     }
 
     public String getFirstName() {
@@ -72,7 +72,7 @@ public class Student {
     @Override
     public String toString() {
         return "Student{" +
-                "student_id=" + student_id +
+                "studentId=" + studentId +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", user=" + user +

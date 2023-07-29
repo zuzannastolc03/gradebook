@@ -1,9 +1,6 @@
 package com.zuzannastolc.gradebook.dao;
 
-import com.zuzannastolc.gradebook.entity.SchoolClass;
-import com.zuzannastolc.gradebook.entity.Student;
-import com.zuzannastolc.gradebook.entity.Teacher;
-import com.zuzannastolc.gradebook.entity.User;
+import com.zuzannastolc.gradebook.entity.*;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -22,4 +19,6 @@ public interface AppDAO {
     SchoolClass findClassByClassName(String className);
     void addNewClass(SchoolClass schoolClass);
     List<?> getStudentsInClass(String className);
+    Subject findSubjectBySubjectName(String subjectName);
+    void addNewSubject(Subject subject);
 }
