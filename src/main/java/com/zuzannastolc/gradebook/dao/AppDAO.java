@@ -21,4 +21,5 @@ public interface AppDAO {
     List<?> getStudentsInClass(String className);
     Subject findSubjectBySubjectName(String subjectName);
     void addNewSubject(Subject subject);
+    void updateSubject(Subject subject);
 }

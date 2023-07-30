@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -158,7 +160,7 @@ public class AppRestController {
     }
 
     @GetMapping("/students_in_class")
-    public List<?> getStudentsInClass(String className) {
+    public List<?> getStudentsInClass(@RequestParam String className) {
         return appService.getStudentsInClass(className);
     }
 
@@ -172,6 +174,101 @@ public class AppRestController {
         appService.addNewSubject(subject);
         String msg = "Added a new subject: " + subject.getSubjectName();
         return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+    @PostMapping("/assign_teacher_to_subject")
+    public ResponseEntity<?> assignTeacherToSubject(@RequestParam String username, @RequestParam String subjectName) {
+        Teacher teacher = appService.findTeacherByUsername(username);
+        if (teacher == null) {
+            String errorMsg = "Teacher: " + username + " doesn't exist.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if (subject == null) {
+            String errorMsg = "Subject: " + subjectName + " doesn't exist.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        for (Subject s: teacher.getSubjects()){
+            if(s == subject){
+                String errorMsg = "Teacher: " + username + " is already assigned to subject: " + subjectName + ".";
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+            }
+        }
+        appService.assignTeacherToSubject(teacher, subject);
+        String msg = "Successfully assigned teacher: " + username + " to subject: " + subjectName + ".";
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+    @GetMapping("/list_of_teachers_subjects")
+    public List<String> getListOfTeachersSubjects(Authentication authentication) {
+        String username = appService.getLoggedUsername(authentication);
+        Teacher teacher = appService.findTeacherByUsername(username);
+        List<String> subjectNames = new ArrayList<>();
+        for (Subject s: appService.getListOfTeachersSubjects(teacher)){
+            subjectNames.add(s.getSubjectName());
+        }
+        return subjectNames;
+    }
+
+    @GetMapping("/list_of_subjects_teachers")
+    public List<String> getListOfSubjectsTeachers(@RequestParam String subjectName) {
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if(subject == null){
+            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+        }
+        List<String> teacherNames = new ArrayList<>();
+        for (Teacher t: appService.getListOfSubjectsTeachers(subject)){
+            teacherNames.add(t.getFirstName() + " " + t.getLastName());
+        }
+        return teacherNames;
+    }
+
+    @PostMapping("/assign_class_to_subject")
+    public ResponseEntity<?> assignClassToSubject(@RequestParam String className, @RequestParam String subjectName) {
+        SchoolClass schoolClass = appService.findClassByClassName(className);
+        if (schoolClass == null) {
+            String errorMsg = "Class: " + className + " doesn't exist.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if (subject == null) {
+            String errorMsg = "Subject: " + subjectName + " doesn't exist.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        for (Subject s: schoolClass.getSubjects()){
+            if(s == subject){
+                String errorMsg = "Class: " + className + " is already assigned to subject: " + subjectName + ".";
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+            }
+        }
+        appService.assignClassToSubject(schoolClass, subject);
+        String msg = "Successfully assigned class: " + className + " to subject: " + subjectName + ".";
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+    @GetMapping("/list_of_classes_subjects")
+    public List<String> getListOfClassesSubjects(Authentication authentication) {
+        String username = appService.getLoggedUsername(authentication);
+        Student student = appService.findStudentByUsername(username);
+        SchoolClass schoolClass = appService.findClassByClassName(student.getSchoolClass().getClassName());
+        List<String> subjectNames = new ArrayList<>();
+        for (Subject s: appService.getListOfClassesSubjects(schoolClass)){
+            subjectNames.add(s.getSubjectName());
+        }
+        return subjectNames;
+    }
+
+    @GetMapping("/list_of_subjects_classes")
+    public List<String> getListOfSubjectsClasses(@RequestParam String subjectName) {
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if(subject == null){
+            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+        }
+        List<String> classNames = new ArrayList<>();
+        for (SchoolClass sc: appService.getListOfSubjectsClasses(subject)){
+            classNames.add(sc.getClassName());
+        }
+        return classNames;
     }
 
 }

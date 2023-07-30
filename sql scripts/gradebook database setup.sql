@@ -2,6 +2,8 @@ CREATE DATABASE  IF NOT EXISTS `gradebook`;
 USE `gradebook`;
 
 
+DROP TABLE IF EXISTS `classes_subjects`;
+DROP TABLE IF EXISTS `teachers_subjects`;
 DROP TABLE IF EXISTS `subjects`;
 DROP TABLE IF EXISTS `teachers`;
 DROP TABLE IF EXISTS `students`;
@@ -107,3 +109,39 @@ VALUES
 ('Maths'),
 ('English'),
 ('Information Technology');
+
+
+CREATE TABLE `teachers_subjects` (
+  `teacher_id` int NOT NULL,
+  `subject_id` int NOT NULL,
+  PRIMARY KEY (`teacher_id`, `subject_id`),
+  FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`teacher_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`subject_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `teachers_subjects`
+VALUES 
+(1, 1),
+(1, 2),
+(2, 1),
+(2, 3);
+
+
+CREATE TABLE `classes_subjects` (
+  `class_id` int NOT NULL,
+  `subject_id` int NOT NULL,
+  PRIMARY KEY (`class_id`, `subject_id`),
+  FOREIGN KEY (`class_id`) REFERENCES `classes` (`class_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`subject_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `classes_subjects`
+VALUES 
+(1, 1),
+(1, 2),
+(2, 1),
+(2, 3);

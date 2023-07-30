@@ -52,7 +52,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/add_new_class").hasRole("HEADTEACHER")
                         .requestMatchers(HttpMethod.GET, "/classes_list").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.GET, "/students_in_class").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.POST, "/add_new_subject").hasRole("HEADTEACHER"));
+                        .requestMatchers(HttpMethod.POST, "/add_new_subject").hasRole("HEADTEACHER")
+                        .requestMatchers(HttpMethod.POST, "/assign_teacher_to_subject").hasRole("HEADTEACHER")
+                        .requestMatchers(HttpMethod.GET, "/list_of_teachers_subjects").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/list_of_subjects_teachers").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/assign_class_to_subject").hasRole("HEADTEACHER")
+                        .requestMatchers(HttpMethod.GET, "/list_of_classes_subjects").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/list_of_subjects_classes").hasRole("TEACHER"));
 
         http.httpBasic(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);

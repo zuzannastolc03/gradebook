@@ -31,4 +31,12 @@ public interface AppService {
     List<?> getStudentsInClass(String className);
     Subject findSubjectBySubjectName(String subjectName);
     void addNewSubject(Subject subject);
+    Teacher findTeacherByUsername(String username);
+    Student findStudentByUsername(String username);
+    void assignTeacherToSubject(Teacher teacher, Subject subject);
+    List<Subject> getListOfTeachersSubjects(Teacher teacher);
+    List<Teacher> getListOfSubjectsTeachers(Subject subject);
+    void assignClassToSubject(SchoolClass schoolClass, Subject subject);
+    List<Subject> getListOfClassesSubjects(SchoolClass schoolClass);
+    List<SchoolClass> getListOfSubjectsClasses(Subject subject);
 }

@@ -17,6 +17,12 @@ public class SchoolClass {
     @OneToMany(mappedBy = "schoolClass",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private List<Student> students;
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(name = "classes_subjects",
+            joinColumns = @JoinColumn(name = "class_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private List<Subject> subjects;
 
     public SchoolClass() {
     }
@@ -49,19 +55,34 @@ public class SchoolClass {
         this.students = students;
     }
 
+    public List<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(List<Subject> subjects) {
+        this.subjects = subjects;
+    }
+
+    public void addStudent(Student tempStudent) {
+        if(students == null){
+            students = new ArrayList<>();
+        }
+        students.add(tempStudent);
+        tempStudent.setSchoolClass(this);
+    }
+
+    public void addSubject(Subject subject){
+        if(subjects == null){
+            subjects = new ArrayList<>();
+        }
+        subjects.add(subject);
+    }
+
     @Override
     public String toString() {
         return "SchoolClass{" +
                 "classId=" + classId +
                 ", className='" + className + '\'' +
                 '}';
-    }
-
-    public void add(Student tempStudent) {
-        if(students == null){
-            students = new ArrayList<>();
-        }
-        students.add(tempStudent);
-        tempStudent.setSchoolClass(this);
     }
 }

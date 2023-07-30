@@ -144,4 +144,9 @@ public class AppDAOImpl implements AppDAO {
         entityManager.persist(subject);
     }
 
+    @Override
+    public void updateSubject(Subject subject) {
+        entityManager.merge(subject);
+    }
+
 }

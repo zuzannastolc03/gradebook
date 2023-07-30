@@ -157,6 +157,64 @@ public class AppServiceImpl implements AppService {
         appDAO.addNewSubject(subject);
     }
 
+    @Override
+    public Teacher findTeacherByUsername(String username) {
+        User user = findUserByUsername(username);
+        Teacher teacher = null;
+        try {
+            teacher = user.getTeacher();
+        } catch (Exception ex) {
+            teacher = null;
+        }
+        return teacher;
+    }
+
+    @Override
+    public Student findStudentByUsername(String username) {
+        User user = findUserByUsername(username);
+        Student student = null;
+        try {
+            student = user.getStudent();
+        } catch (Exception ex) {
+            student = null;
+        }
+        return student;
+    }
+
+    @Override
+    @Transactional
+    public void assignTeacherToSubject(Teacher teacher, Subject subject) {
+        subject.addTeacher(teacher);
+        appDAO.updateSubject(subject);
+    }
+
+    @Override
+    public List<Subject> getListOfTeachersSubjects(Teacher teacher) {
+        return teacher.getSubjects();
+    }
+
+    @Override
+    public List<Teacher> getListOfSubjectsTeachers(Subject subject) {
+        return subject.getTeachers();
+    }
+
+    @Override
+    @Transactional
+    public void assignClassToSubject(SchoolClass schoolClass, Subject subject) {
+        subject.addClass(schoolClass);
+        appDAO.updateSubject(subject);
+    }
+
+    @Override
+    public List<Subject> getListOfClassesSubjects(SchoolClass schoolClass) {
+        return schoolClass.getSubjects();
+    }
+
+    @Override
+    public List<SchoolClass> getListOfSubjectsClasses(Subject subject) {
+        return subject.getSchoolClasses();
+    }
+
 
     public String generateUsername(String firstName, String lastName, boolean isAStudent, int i) {
         String username = firstName.toLowerCase() + "." + lastName.toLowerCase();
