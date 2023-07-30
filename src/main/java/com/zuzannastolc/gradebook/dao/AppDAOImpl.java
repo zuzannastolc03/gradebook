@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -147,6 +146,14 @@ public class AppDAOImpl implements AppDAO {
     @Override
     public void updateSubject(Subject subject) {
         entityManager.merge(subject);
+    }
+
+    @Override
+    public List<?> getStudentsGradesFromSubject(Student student, Subject subject) {
+        Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.grades where subject_id = :subjectId AND student_id = :studentId", Grade.class);
+        theQuery.setParameter("subjectId", subject.getSubjectId());
+        theQuery.setParameter("studentId", student.getStudentId());
+        return theQuery.getResultList();
     }
 
 }

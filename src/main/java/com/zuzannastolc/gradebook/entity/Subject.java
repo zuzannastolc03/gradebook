@@ -17,8 +17,8 @@ public class Subject {
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "teachers_subjects",
-                joinColumns = @JoinColumn(name = "subject_id"),
-                inverseJoinColumns = @JoinColumn(name = "teacher_id"))
+            joinColumns = @JoinColumn(name = "subject_id"),
+            inverseJoinColumns = @JoinColumn(name = "teacher_id"))
     private List<Teacher> teachers;
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -26,6 +26,9 @@ public class Subject {
             joinColumns = @JoinColumn(name = "subject_id"),
             inverseJoinColumns = @JoinColumn(name = "class_id"))
     private List<SchoolClass> schoolClasses;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "subject_id")
+    private List<Grade> grades;
 
     public Subject() {
     }
@@ -66,18 +69,33 @@ public class Subject {
         this.schoolClasses = schoolClasses;
     }
 
-    public void addTeacher(Teacher teacher){
-        if(teachers == null){
+    public List<Grade> getGrades() {
+        return grades;
+    }
+
+    public void setGrades(List<Grade> grades) {
+        this.grades = grades;
+    }
+
+    public void addTeacher(Teacher teacher) {
+        if (teachers == null) {
             teachers = new ArrayList<>();
         }
         teachers.add(teacher);
     }
 
-    public void addClass(SchoolClass schoolClass){
-        if(schoolClasses == null){
+    public void addClass(SchoolClass schoolClass) {
+        if (schoolClasses == null) {
             schoolClasses = new ArrayList<>();
         }
         schoolClasses.add(schoolClass);
+    }
+
+    public void addGrade(Grade grade) {
+        if (grades == null) {
+            grades = new ArrayList<>();
+        }
+        grades.add(grade);
     }
 
     @Override

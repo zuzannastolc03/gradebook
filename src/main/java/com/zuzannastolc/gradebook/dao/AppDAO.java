@@ -22,4 +22,5 @@ public interface AppDAO {
     Subject findSubjectBySubjectName(String subjectName);
     void addNewSubject(Subject subject);
     void updateSubject(Subject subject);
+    List<?> getStudentsGradesFromSubject(Student student, Subject subject);
 }

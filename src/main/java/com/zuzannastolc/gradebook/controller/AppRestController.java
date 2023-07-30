@@ -188,8 +188,8 @@ public class AppRestController {
             String errorMsg = "Subject: " + subjectName + " doesn't exist.";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
         }
-        for (Subject s: teacher.getSubjects()){
-            if(s == subject){
+        for (Subject s : teacher.getSubjects()) {
+            if (s == subject) {
                 String errorMsg = "Teacher: " + username + " is already assigned to subject: " + subjectName + ".";
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
             }
@@ -204,7 +204,7 @@ public class AppRestController {
         String username = appService.getLoggedUsername(authentication);
         Teacher teacher = appService.findTeacherByUsername(username);
         List<String> subjectNames = new ArrayList<>();
-        for (Subject s: appService.getListOfTeachersSubjects(teacher)){
+        for (Subject s : appService.getListOfTeachersSubjects(teacher)) {
             subjectNames.add(s.getSubjectName());
         }
         return subjectNames;
@@ -213,11 +213,11 @@ public class AppRestController {
     @GetMapping("/list_of_subjects_teachers")
     public List<String> getListOfSubjectsTeachers(@RequestParam String subjectName) {
         Subject subject = appService.findSubjectBySubjectName(subjectName);
-        if(subject == null){
+        if (subject == null) {
             return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
         }
         List<String> teacherNames = new ArrayList<>();
-        for (Teacher t: appService.getListOfSubjectsTeachers(subject)){
+        for (Teacher t : appService.getListOfSubjectsTeachers(subject)) {
             teacherNames.add(t.getFirstName() + " " + t.getLastName());
         }
         return teacherNames;
@@ -235,8 +235,8 @@ public class AppRestController {
             String errorMsg = "Subject: " + subjectName + " doesn't exist.";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
         }
-        for (Subject s: schoolClass.getSubjects()){
-            if(s == subject){
+        for (Subject s : schoolClass.getSubjects()) {
+            if (s == subject) {
                 String errorMsg = "Class: " + className + " is already assigned to subject: " + subjectName + ".";
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
             }
@@ -252,7 +252,7 @@ public class AppRestController {
         Student student = appService.findStudentByUsername(username);
         SchoolClass schoolClass = appService.findClassByClassName(student.getSchoolClass().getClassName());
         List<String> subjectNames = new ArrayList<>();
-        for (Subject s: appService.getListOfClassesSubjects(schoolClass)){
+        for (Subject s : appService.getListOfClassesSubjects(schoolClass)) {
             subjectNames.add(s.getSubjectName());
         }
         return subjectNames;
@@ -261,14 +261,31 @@ public class AppRestController {
     @GetMapping("/list_of_subjects_classes")
     public List<String> getListOfSubjectsClasses(@RequestParam String subjectName) {
         Subject subject = appService.findSubjectBySubjectName(subjectName);
-        if(subject == null){
+        if (subject == null) {
             return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
         }
         List<String> classNames = new ArrayList<>();
-        for (SchoolClass sc: appService.getListOfSubjectsClasses(subject)){
+        for (SchoolClass sc : appService.getListOfSubjectsClasses(subject)) {
             classNames.add(sc.getClassName());
         }
         return classNames;
+    }
+
+    @GetMapping("/list_of_students_grades_from_subject")
+    public List<?> getStudentsGradesFromSubject(Authentication authentication, @RequestParam String subjectName) {
+        String username = appService.getLoggedUsername(authentication);
+        User user = appService.findUserByUsername(username);
+        Student student = user.getStudent();
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if (subject == null) {
+            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+        }
+        SchoolClass schoolClass = student.getSchoolClass();
+        List<Subject> subjects = schoolClass.getSubjects();
+        if (!subjects.contains(subject)) {
+            return new ArrayList<String>(Collections.singleton("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + "."));
+        }
+        return appService.getStudentsGradesFromSubject(student, subject);
     }
 
 }

@@ -27,6 +27,9 @@ public class Teacher {
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private List<Subject> subjects;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "teacher_id")
+    private List<Grade> grades;
 
     public Teacher() {
     }
@@ -76,6 +79,14 @@ public class Teacher {
         this.subjects = subjects;
     }
 
+    public List<Grade> getGrades() {
+        return grades;
+    }
+
+    public void setGrades(List<Grade> grades) {
+        this.grades = grades;
+    }
+
     public void addSubject(Subject subject) {
         if (subjects == null) {
             subjects = new ArrayList<>();
@@ -83,13 +94,19 @@ public class Teacher {
         subjects.add(subject);
     }
 
+    public void addGrade(Grade grade) {
+        if (grades == null) {
+            grades = new ArrayList<>();
+        }
+        grades.add(grade);
+    }
+
     @Override
     public String toString() {
         return "Teacher{" +
                 "teacherId=" + teacherId +
                 ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", user=" + user +
+                ", lastName='" + lastName +
                 '}';
     }
 }

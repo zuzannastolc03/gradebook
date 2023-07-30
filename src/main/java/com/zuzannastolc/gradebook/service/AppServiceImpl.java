@@ -215,6 +215,11 @@ public class AppServiceImpl implements AppService {
         return subject.getSchoolClasses();
     }
 
+    @Override
+    public List<?> getStudentsGradesFromSubject(Student student, Subject subject) {
+        return appDAO.getStudentsGradesFromSubject(student, subject);
+    }
+
 
     public String generateUsername(String firstName, String lastName, boolean isAStudent, int i) {
         String username = firstName.toLowerCase() + "." + lastName.toLowerCase();

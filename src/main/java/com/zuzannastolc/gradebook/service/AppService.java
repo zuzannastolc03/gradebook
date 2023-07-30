@@ -39,4 +39,6 @@ public interface AppService {
     void assignClassToSubject(SchoolClass schoolClass, Subject subject);
     List<Subject> getListOfClassesSubjects(SchoolClass schoolClass);
     List<SchoolClass> getListOfSubjectsClasses(Subject subject);
+    List<?> getStudentsGradesFromSubject(Student student, Subject subject);
+
 }

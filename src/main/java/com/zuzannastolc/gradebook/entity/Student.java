@@ -2,6 +2,9 @@ package com.zuzannastolc.gradebook.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "students")
 public class Student {
@@ -20,7 +23,9 @@ public class Student {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
-
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "student_id")
+    private List<Grade> grades;
     public Student() {
     }
 
@@ -69,13 +74,27 @@ public class Student {
         this.user = user;
     }
 
+    public List<Grade> getGrades() {
+        return grades;
+    }
+
+    public void setGrades(List<Grade> grades) {
+        this.grades = grades;
+    }
+
+    public void addGrade(Grade grade){
+        if(grades == null){
+            grades = new ArrayList<>();
+        }
+        grades.add(grade);
+    }
+
     @Override
     public String toString() {
         return "Student{" +
                 "studentId=" + studentId +
                 ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", user=" + user +
+                ", lastName='" + lastName +
                 '}';
     }
 }

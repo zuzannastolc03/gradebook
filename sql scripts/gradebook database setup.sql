@@ -2,6 +2,7 @@ CREATE DATABASE  IF NOT EXISTS `gradebook`;
 USE `gradebook`;
 
 
+DROP TABLE IF EXISTS `grades`;
 DROP TABLE IF EXISTS `classes_subjects`;
 DROP TABLE IF EXISTS `teachers_subjects`;
 DROP TABLE IF EXISTS `subjects`;
@@ -145,3 +146,25 @@ VALUES
 (1, 2),
 (2, 1),
 (2, 3);
+
+
+CREATE TABLE `grades` (
+  `grade_id` int NOT NULL AUTO_INCREMENT,
+  `grade` int NOT NULL,
+  `description` varchar(100) DEFAULT NULL,
+  `student_id` int NOT NULL,
+  `teacher_id` int NOT NULL,
+  `subject_id` int NOT NULL,
+  PRIMARY KEY (`grade_id`),
+  FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`teacher_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`subject_id`)
+  ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+INSERT INTO `grades` (`grade`, `description`, `student_id`, `teacher_id`, `subject_id`)
+VALUES 
+(5, 'Algebra test', 1, 1, 1),
+(4, 'Modal verbs', 2, 1, 2);
