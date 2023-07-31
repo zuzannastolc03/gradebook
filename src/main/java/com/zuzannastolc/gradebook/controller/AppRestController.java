@@ -203,6 +203,9 @@ public class AppRestController {
     public List<String> getListOfTeachersSubjects(Authentication authentication) {
         String username = appService.getLoggedUsername(authentication);
         Teacher teacher = appService.findTeacherByUsername(username);
+        if (!teacher.getUser().isEnabled()) {
+            return new ArrayList<>(Collections.singleton("Teacher: " + username + "doesn't teach anymore."));
+        }
         List<String> subjectNames = new ArrayList<>();
         for (Subject s : appService.getListOfTeachersSubjects(teacher)) {
             subjectNames.add(s.getSubjectName());
@@ -218,7 +221,9 @@ public class AppRestController {
         }
         List<String> teacherNames = new ArrayList<>();
         for (Teacher t : appService.getListOfSubjectsTeachers(subject)) {
-            teacherNames.add(t.getFirstName() + " " + t.getLastName());
+            if (t.getUser().isEnabled()) {
+                teacherNames.add(t.getFirstName() + " " + t.getLastName());
+            }
         }
         return teacherNames;
     }
@@ -271,7 +276,7 @@ public class AppRestController {
         return classNames;
     }
 
-    @GetMapping("/list_of_students_grades_from_subject")
+    @GetMapping("/list_of_my_grades_from_subject")
     public List<?> getStudentsGradesFromSubject(Authentication authentication, @RequestParam String subjectName) {
         String username = appService.getLoggedUsername(authentication);
         User user = appService.findUserByUsername(username);
@@ -285,7 +290,150 @@ public class AppRestController {
         if (!subjects.contains(subject)) {
             return new ArrayList<String>(Collections.singleton("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + "."));
         }
-        return appService.getStudentsGradesFromSubject(student, subject);
+        List<Integer> grades = new ArrayList<>();
+        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
+            Grade grade = (Grade) o;
+            grades.add(grade.getGrade());
+        }
+        return grades;
+    }
+
+    @GetMapping("/list_of_students_grades_from_subject")
+    public List<?> getStudentsGradesFromSubject(@RequestParam String username, @RequestParam String subjectName) {
+        User user = appService.findUserByUsername(username);
+        if (user == null) {
+            return new ArrayList<String>(Collections.singleton("User: " + username + " doesn't exist."));
+        }
+        Student student = user.getStudent();
+        if (student == null) {
+            return new ArrayList<String>(Collections.singleton("User: " + username + " is not a student."));
+        }
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if (subject == null) {
+            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+        }
+        SchoolClass schoolClass = student.getSchoolClass();
+        List<Subject> subjects = schoolClass.getSubjects();
+        if (!subjects.contains(subject)) {
+            return new ArrayList<String>(Collections.singleton("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + "."));
+        }
+        List<Integer> grades = new ArrayList<>();
+        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
+            Grade grade = (Grade) o;
+            grades.add(grade.getGrade());
+        }
+        return grades;
+    }
+
+    @PostMapping("/add_new_grade")
+    public ResponseEntity<?> addNewGrade(@RequestBody Grade grade, @RequestParam String subjectName, @RequestParam String studentsUsername, Authentication authentication) {
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if (subject == null) {
+            String errorMsg = "Subject: " + subjectName + " doesn't exists.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        String username = appService.getLoggedUsername(authentication);
+        Teacher teacher = appService.findTeacherByUsername(username);
+        List<?> teachersSubjects = appService.getListOfTeachersSubjects(teacher);
+        if (!teachersSubjects.contains(subject)) {
+            String errorMsg = "You don't teach: " + subjectName + ".";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        Student student = appService.findStudentByUsername(studentsUsername);
+        if (student == null) {
+            String errorMsg = "Student: " + studentsUsername + " doesn't exists.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        appService.addGrade(grade, teacher, subject, student);
+        String msg = "Added a new grade: " + grade.getGrade() + ", " + grade.getDescription();
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+    @PutMapping("/update_grade")
+    public ResponseEntity<?> updateGrade(@RequestBody Grade grade, @RequestParam int gradeId, Authentication authentication) {
+        Grade tempGrade = appService.findGradeById(gradeId);
+        if (tempGrade == null) {
+            String errorMsg = "Grade id: " + gradeId + " doesn't exists.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        String username = appService.getLoggedUsername(authentication);
+        Teacher teacher = appService.findTeacherByUsername(username);
+        if (teacher.getTeacherId() != tempGrade.getTeacher().getTeacherId()) {
+            String errorMsg = "You didn't post this grade: " + tempGrade.getGrade() + ", " + tempGrade.getDescription() + ".";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        tempGrade.setGrade(grade.getGrade());
+        tempGrade.setDescription(grade.getDescription());
+        appService.updateGrade(tempGrade);
+        String msg = "Successfully updated to grade: " + tempGrade.getGrade() + ", " + tempGrade.getDescription();
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+    @DeleteMapping("/delete_grade")
+    public ResponseEntity<?> deleteGrade(Authentication authentication, @RequestParam int gradeId) {
+        Grade grade = appService.findGradeById(gradeId);
+        if (grade == null) {
+            String errorMsg = "Grade id: " + gradeId + " doesn't exists.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        String username = appService.getLoggedUsername(authentication);
+        Teacher teacher = appService.findTeacherByUsername(username);
+        if (teacher.getTeacherId() != grade.getTeacher().getTeacherId()) {
+            String errorMsg = "You didn't post this grade: " + grade.getGrade() + ", " + grade.getDescription() + ".";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMsg);
+        }
+        appService.deleteGrade(gradeId);
+        String msg = "Successfully deleted grade id: " + gradeId + ".";
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+    }
+
+    @GetMapping("/my_mean_from_subject")
+    public Float getStudentsMeanFromSubject(Authentication authentication, @RequestParam String subjectName) {
+        String username = appService.getLoggedUsername(authentication);
+        User user = appService.findUserByUsername(username);
+        Student student = user.getStudent();
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if (subject == null) {
+            throw new RuntimeException("Subject: " + subjectName + " doesn't exist.");
+        }
+        SchoolClass schoolClass = student.getSchoolClass();
+        List<Subject> subjects = schoolClass.getSubjects();
+        if (!subjects.contains(subject)) {
+            throw new RuntimeException("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + ".");
+        }
+        float sum = 0f;
+        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
+            Grade grade = (Grade) o;
+            sum += grade.getGrade();
+        }
+        return sum / appService.getStudentsGradesFromSubject(student, subject).size();
+    }
+
+    @GetMapping("/mean_of_students_grades_from_subject")
+    public Float getStudentsMeanFromSubject(@RequestParam String username, @RequestParam String subjectName) {
+        User user = appService.findUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User: " + username + " doesn't exist.");
+        }
+        Student student = user.getStudent();
+        if (student == null) {
+            throw new RuntimeException("User: " + username + " is not a student.");
+        }
+        Subject subject = appService.findSubjectBySubjectName(subjectName);
+        if (subject == null) {
+            throw new RuntimeException("Subject: " + subjectName + " doesn't exist.");
+        }
+        SchoolClass schoolClass = student.getSchoolClass();
+        List<Subject> subjects = schoolClass.getSubjects();
+        if (!subjects.contains(subject)) {
+            throw new RuntimeException("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + ".");
+        }
+        float sum = 0f;
+        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
+            Grade grade = (Grade) o;
+            sum += grade.getGrade();
+        }
+        return sum / appService.getStudentsGradesFromSubject(student, subject).size();
     }
 
 }

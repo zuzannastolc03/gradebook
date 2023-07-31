@@ -18,9 +18,14 @@ public interface AppDAO {
     List<String> findAllClasses();
     SchoolClass findClassByClassName(String className);
     void addNewClass(SchoolClass schoolClass);
-    List<?> getStudentsInClass(String className);
+    List<?> getEnabledStudentsInClass(String className);
     Subject findSubjectBySubjectName(String subjectName);
     void addNewSubject(Subject subject);
     void updateSubject(Subject subject);
     List<?> getStudentsGradesFromSubject(Student student, Subject subject);
+    void addGrade(Grade grade);
+    void updateGrade(Grade grade);
+    Grade findGradeById(int id);
+    void deleteGrade(int id);
+
 }

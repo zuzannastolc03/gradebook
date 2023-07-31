@@ -152,9 +152,9 @@ CREATE TABLE `grades` (
   `grade_id` int NOT NULL AUTO_INCREMENT,
   `grade` int NOT NULL,
   `description` varchar(100) DEFAULT NULL,
-  `student_id` int NOT NULL,
-  `teacher_id` int NOT NULL,
-  `subject_id` int NOT NULL,
+  `student_id` int DEFAULT NULL,
+  `teacher_id` int DEFAULT NULL,
+  `subject_id` int DEFAULT NULL,
   PRIMARY KEY (`grade_id`),
   FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`)
   ON DELETE NO ACTION ON UPDATE NO ACTION,

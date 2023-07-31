@@ -117,10 +117,10 @@ public class AppDAOImpl implements AppDAO {
     }
 
     @Override
-    public List<?> getStudentsInClass(String className) {
+    public List<?> getEnabledStudentsInClass(String className) {
         SchoolClass schoolClass = findClassByClassName(className);
         int class_id = schoolClass.getClassId();
-        Query theQuery = entityManager.createNativeQuery("SELECT student_id, first_name, last_name FROM gradebook.students where class_id = :classId");
+        Query theQuery = entityManager.createNativeQuery("SELECT usr.user_id, std.student_id, std.first_name, std.last_name FROM gradebook.users usr, gradebook.students std where usr.enabled = 1 and std.class_id = :classId and std.user_id = usr.user_id");
         theQuery.setParameter("classId", class_id);
         return (List<?>) theQuery.getResultList();
     }
@@ -154,6 +154,27 @@ public class AppDAOImpl implements AppDAO {
         theQuery.setParameter("subjectId", subject.getSubjectId());
         theQuery.setParameter("studentId", student.getStudentId());
         return theQuery.getResultList();
+    }
+
+    @Override
+    public void addGrade(Grade grade) {
+        entityManager.persist(grade);
+    }
+
+    @Override
+    public void updateGrade(Grade grade) {
+        entityManager.merge(grade);
+    }
+
+    @Override
+    public Grade findGradeById(int id) {
+        return entityManager.find(Grade.class, id);
+    }
+
+    @Override
+    public void deleteGrade(int id) {
+        Grade grade = findGradeById(id);
+        entityManager.remove(grade);
     }
 
 }

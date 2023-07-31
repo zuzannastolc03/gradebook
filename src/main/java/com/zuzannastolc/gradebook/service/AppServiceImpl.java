@@ -143,7 +143,7 @@ public class AppServiceImpl implements AppService {
         if (schoolClass == null) {
             return new ArrayList<String>(Collections.singleton("Class: " + className + " doesn't exist."));
         }
-        return appDAO.getStudentsInClass(className);
+        return appDAO.getEnabledStudentsInClass(className);
     }
 
     @Override
@@ -218,6 +218,32 @@ public class AppServiceImpl implements AppService {
     @Override
     public List<?> getStudentsGradesFromSubject(Student student, Subject subject) {
         return appDAO.getStudentsGradesFromSubject(student, subject);
+    }
+
+    @Override
+    @Transactional
+    public void addGrade(Grade grade, Teacher teacher, Subject subject, Student student) {
+        grade.setStudent(student);
+        grade.setTeacher(teacher);
+        grade.setSubject(subject);
+        appDAO.addGrade(grade);
+    }
+
+    @Override
+    @Transactional
+    public void updateGrade(Grade grade) {
+        appDAO.updateGrade(grade);
+    }
+
+    @Override
+    public Grade findGradeById(int id) {
+        return appDAO.findGradeById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteGrade(int id) {
+        appDAO.deleteGrade(id);
     }
 
 
