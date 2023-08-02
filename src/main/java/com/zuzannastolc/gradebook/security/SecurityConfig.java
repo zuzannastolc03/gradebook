@@ -53,6 +53,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(configurer ->
                 configurer
+                        .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/teachers").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.GET, "/students").hasRole("STUDENT")
