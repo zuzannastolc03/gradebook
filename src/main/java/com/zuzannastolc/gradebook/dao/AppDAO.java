@@ -15,7 +15,7 @@ public interface AppDAO {
     void updateUser(User user);
     void updateStudent(Student student);
     void updateTeacher(Teacher teacher);
-    List<String> findAllClasses();
+    List<?> findAllClasses();
     SchoolClass findClassByClassName(String className);
     void addNewClass(SchoolClass schoolClass);
     List<?> getEnabledStudentsInClass(String className);

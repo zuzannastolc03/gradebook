@@ -1,5 +1,6 @@
 package com.zuzannastolc.gradebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -16,12 +17,14 @@ public class SchoolClass {
     private String className;
     @OneToMany(mappedBy = "schoolClass",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JsonIgnore
     private List<Student> students;
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "classes_subjects",
             joinColumns = @JoinColumn(name = "class_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    @JsonIgnore
     private List<Subject> subjects;
 
     public SchoolClass() {

@@ -1,5 +1,6 @@
 package com.zuzannastolc.gradebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class Teacher {
     private String lastName;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @ManyToMany(fetch = FetchType.LAZY,
@@ -25,9 +27,11 @@ public class Teacher {
     @JoinTable(name = "teachers_subjects",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    @JsonIgnore
     private List<Subject> subjects;
     @OneToMany(mappedBy = "teacher",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JsonIgnore
     private List<Grade> grades;
 
     public Teacher() {

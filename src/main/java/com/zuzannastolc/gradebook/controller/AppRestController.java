@@ -95,13 +95,9 @@ public class AppRestController {
     }
 
     @PutMapping("/change_password")
-    public ResponseEntity<?> changePassword(Authentication authentication, @RequestParam String oldPassword, @RequestParam String newPassword) {
+    public ResponseEntity<?> changePassword(Authentication authentication, @RequestParam String newPassword) {
         String username = appService.getLoggedUsername(authentication);
         User user = appService.findUserByUsername(username);
-        if (!Objects.equals(user.getPassword(), "{noop}" + oldPassword)) {
-            String errorMsg = "Your password is incorrect. Try again.";
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMsg);
-        }
         appService.changePassword(user, newPassword);
         String msg = "Password changed correctly.";
         return ResponseEntity.status(HttpStatus.OK).body(msg);
@@ -200,32 +196,22 @@ public class AppRestController {
     }
 
     @GetMapping("/list_of_teachers_subjects")
-    public List<String> getListOfTeachersSubjects(Authentication authentication) {
+    public List<Subject> getListOfTeachersSubjects(Authentication authentication) {
         String username = appService.getLoggedUsername(authentication);
         Teacher teacher = appService.findTeacherByUsername(username);
         if (!teacher.getUser().isEnabled()) {
-            return new ArrayList<>(Collections.singleton("Teacher: " + username + "doesn't teach anymore."));
+            throw new RuntimeException("Teacher: " + username + "doesn't teach anymore.");
         }
-        List<String> subjectNames = new ArrayList<>();
-        for (Subject s : appService.getListOfTeachersSubjects(teacher)) {
-            subjectNames.add(s.getSubjectName());
-        }
-        return subjectNames;
+        return appService.getListOfTeachersSubjects(teacher);
     }
 
     @GetMapping("/list_of_subjects_teachers")
-    public List<String> getListOfSubjectsTeachers(@RequestParam String subjectName) {
+    public List<Teacher> getListOfSubjectsTeachers(@RequestParam String subjectName) {
         Subject subject = appService.findSubjectBySubjectName(subjectName);
         if (subject == null) {
-            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+            throw new RuntimeException("Subject: " + subjectName + " doesn't exist.");
         }
-        List<String> teacherNames = new ArrayList<>();
-        for (Teacher t : appService.getListOfSubjectsTeachers(subject)) {
-            if (t.getUser().isEnabled()) {
-                teacherNames.add(t.getFirstName() + " " + t.getLastName());
-            }
-        }
-        return teacherNames;
+        return appService.getListOfSubjectsTeachers(subject);
     }
 
     @PostMapping("/assign_class_to_subject")
@@ -252,28 +238,20 @@ public class AppRestController {
     }
 
     @GetMapping("/list_of_classes_subjects")
-    public List<String> getListOfClassesSubjects(Authentication authentication) {
+    public List<Subject> getListOfClassesSubjects(Authentication authentication) {
         String username = appService.getLoggedUsername(authentication);
         Student student = appService.findStudentByUsername(username);
         SchoolClass schoolClass = appService.findClassByClassName(student.getSchoolClass().getClassName());
-        List<String> subjectNames = new ArrayList<>();
-        for (Subject s : appService.getListOfClassesSubjects(schoolClass)) {
-            subjectNames.add(s.getSubjectName());
-        }
-        return subjectNames;
+        return appService.getListOfClassesSubjects(schoolClass);
     }
 
     @GetMapping("/list_of_subjects_classes")
-    public List<String> getListOfSubjectsClasses(@RequestParam String subjectName) {
+    public List<SchoolClass> getListOfSubjectsClasses(@RequestParam String subjectName) {
         Subject subject = appService.findSubjectBySubjectName(subjectName);
         if (subject == null) {
-            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+            throw new RuntimeException("Subject: " + subjectName + " doesn't exist.");
         }
-        List<String> classNames = new ArrayList<>();
-        for (SchoolClass sc : appService.getListOfSubjectsClasses(subject)) {
-            classNames.add(sc.getClassName());
-        }
-        return classNames;
+        return appService.getListOfSubjectsClasses(subject);
     }
 
     @GetMapping("/list_of_my_grades_from_subject")
@@ -283,46 +261,36 @@ public class AppRestController {
         Student student = user.getStudent();
         Subject subject = appService.findSubjectBySubjectName(subjectName);
         if (subject == null) {
-            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+            throw new RuntimeException("Subject: " + subjectName + " doesn't exist.");
         }
         SchoolClass schoolClass = student.getSchoolClass();
         List<Subject> subjects = schoolClass.getSubjects();
         if (!subjects.contains(subject)) {
-            return new ArrayList<String>(Collections.singleton("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + "."));
+            throw new RuntimeException("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + ".");
         }
-        List<Integer> grades = new ArrayList<>();
-        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
-            Grade grade = (Grade) o;
-            grades.add(grade.getGrade());
-        }
-        return grades;
+        return appService.getStudentsGradesFromSubject(student, subject);
     }
 
     @GetMapping("/list_of_students_grades_from_subject")
     public List<?> getStudentsGradesFromSubject(@RequestParam String username, @RequestParam String subjectName) {
         User user = appService.findUserByUsername(username);
         if (user == null) {
-            return new ArrayList<String>(Collections.singleton("User: " + username + " doesn't exist."));
+            throw new RuntimeException("User: " + username + " doesn't exist.");
         }
         Student student = user.getStudent();
         if (student == null) {
-            return new ArrayList<String>(Collections.singleton("User: " + username + " is not a student."));
+            throw new RuntimeException("User: " + username + " is not a student.");
         }
         Subject subject = appService.findSubjectBySubjectName(subjectName);
         if (subject == null) {
-            return new ArrayList<String>(Collections.singleton("Subject: " + subjectName + " doesn't exist."));
+            throw new RuntimeException("Subject: " + subjectName + " doesn't exist.");
         }
         SchoolClass schoolClass = student.getSchoolClass();
         List<Subject> subjects = schoolClass.getSubjects();
         if (!subjects.contains(subject)) {
-            return new ArrayList<String>(Collections.singleton("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + "."));
+            throw new RuntimeException("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + ".");
         }
-        List<Integer> grades = new ArrayList<>();
-        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
-            Grade grade = (Grade) o;
-            grades.add(grade.getGrade());
-        }
-        return grades;
+        return appService.getStudentsGradesFromSubject(student, subject);
     }
 
     @PostMapping("/add_new_grade")
@@ -401,12 +369,7 @@ public class AppRestController {
         if (!subjects.contains(subject)) {
             throw new RuntimeException("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + ".");
         }
-        float sum = 0f;
-        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
-            Grade grade = (Grade) o;
-            sum += grade.getGrade();
-        }
-        return sum / appService.getStudentsGradesFromSubject(student, subject).size();
+        return appService.calculateMean(student, subject);
     }
 
     @GetMapping("/mean_of_students_grades_from_subject")
@@ -428,12 +391,7 @@ public class AppRestController {
         if (!subjects.contains(subject)) {
             throw new RuntimeException("Class: " + schoolClass.getClassName() + " doesn't learn " + subject.getSubjectName() + ".");
         }
-        float sum = 0f;
-        for (Object o : appService.getStudentsGradesFromSubject(student, subject)) {
-            Grade grade = (Grade) o;
-            sum += grade.getGrade();
-        }
-        return sum / appService.getStudentsGradesFromSubject(student, subject).size();
+        return appService.calculateMean(student, subject);
     }
 
 }

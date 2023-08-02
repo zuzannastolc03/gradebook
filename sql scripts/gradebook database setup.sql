@@ -24,10 +24,11 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`username`,`password`,`enabled`)
 VALUES 
-('john.johnson@school.com','{noop}john',1),
-('mary.marys@student.school.com','{noop}mary',1),
-('susan.susanes@school.com','{noop}susan',1),
-('jack.jackson@student.school.com','{noop}jack',1);
+-- default password is a first name of a user lowercase --  
+('john.johnson@school.com','{bcrypt}$2a$10$bmP2wX8O0p0zP5aCV9uQXejfYDYK621Gmr4QFtI6Jqo28.oiRoaq6',1),
+('mary.marys@student.school.com','{bcrypt}$2a$10$VhiCsy7MtUh9j3/jwpMy5exOVFOvgUiUiou2V1ydQaU9jpBOcutUC',1),
+('susan.susanes@school.com','{bcrypt}$2a$10$e16QFt0LHnzF0.vzqQK6UetXzzvtrUf6oRf0qcpvwXO1ohSXM7rVe',1),
+('jack.jackson@student.school.com','{bcrypt}$2a$10$Pau2mGGUEEoirlCQ8UtlF.5NxQNsfk6nhkKxIJUyvw2csXMbulwT.',1);
 
 
 CREATE TABLE `authorities` (

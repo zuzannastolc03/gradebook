@@ -87,15 +87,9 @@ public class AppDAOImpl implements AppDAO {
     }
 
     @Override
-    public List<String> findAllClasses() {
-        Query theQuery = entityManager.createNativeQuery("SELECT class_name FROM gradebook.classes");
-        List<?> tempClasses = theQuery.getResultList();
-        List<String> classes = new ArrayList<>();
-        for (Object o : tempClasses) {
-            String s = o.toString();
-            classes.add(s);
-        }
-        return classes;
+    public List<?> findAllClasses() {
+        Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.classes");
+        return (List<?>) theQuery.getResultList();
     }
 
     @Override

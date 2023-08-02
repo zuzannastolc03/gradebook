@@ -4,16 +4,25 @@ import com.zuzannastolc.gradebook.dao.AppDAO;
 import com.zuzannastolc.gradebook.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AppServiceImpl implements AppService {
     private AppDAO appDAO;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public AppServiceImpl(AppDAO appDAO) {
@@ -34,7 +43,8 @@ public class AppServiceImpl implements AppService {
     @Override
     @Transactional
     public void addNewUserWithAuthorities(WebUser webUser) {
-        User user = new User(webUser.getUsername(), "{noop}" + webUser.getPassword(), true);
+        String password = passwordEncoder.encode(webUser.getPassword());
+        User user = new User(webUser.getUsername(), password, true);
         for (String authority : webUser.getAuthorities()) {
             Authority tempAuthority = new Authority(authority);
             user.addAuthority(tempAuthority);
@@ -52,7 +62,7 @@ public class AppServiceImpl implements AppService {
     @Transactional
     public void addNewStudent(Student student, SchoolClass schoolClass) {
         String username = generateUsername(student.getFirstName(), student.getLastName(), true, 0);
-        String password = "{noop}" + student.getFirstName().toLowerCase();
+        String password = passwordEncoder.encode(student.getFirstName().toLowerCase());
         User user = new User(username, password, true);
         Authority authority = new Authority("ROLE_STUDENT");
         user.addAuthority(authority);
@@ -65,7 +75,7 @@ public class AppServiceImpl implements AppService {
     @Transactional
     public void addNewTeacher(Teacher teacher) {
         String username = generateUsername(teacher.getFirstName(), teacher.getLastName(), false, 0);
-        String password = "{noop}" + teacher.getFirstName().toLowerCase();
+        String password = passwordEncoder.encode(teacher.getFirstName().toLowerCase());
         User user = new User(username, password, true);
         Authority authority = new Authority("ROLE_TEACHER");
         user.addAuthority(authority);
@@ -83,7 +93,8 @@ public class AppServiceImpl implements AppService {
     @Override
     @Transactional
     public void changePassword(User user, String newPassword) {
-        user.setPassword("{noop}" + newPassword);
+        String password = passwordEncoder.encode(newPassword);
+        user.setPassword(password);
         appDAO.updateUser(user);
     }
 
@@ -91,7 +102,7 @@ public class AppServiceImpl implements AppService {
     @Transactional
     public void updateStudentWithUser(Student newStudent, Student oldStudent) {
         String username = generateUsername(newStudent.getFirstName(), newStudent.getLastName(), true, 0);
-        String password = "{noop}" + newStudent.getFirstName().toLowerCase();
+        String password = passwordEncoder.encode(newStudent.getFirstName().toLowerCase());
         User user = oldStudent.getUser();
         user.setUsername(username);
         user.setPassword(password);
@@ -105,7 +116,7 @@ public class AppServiceImpl implements AppService {
     @Transactional
     public void updateTeacherWithUser(Teacher newTeacher, Teacher oldTeacher) {
         String username = generateUsername(newTeacher.getFirstName(), newTeacher.getLastName(), false, 0);
-        String password = "{noop}" + newTeacher.getFirstName().toLowerCase();
+        String password = passwordEncoder.encode(newTeacher.getFirstName().toLowerCase());
         User user = oldTeacher.getUser();
         user.setUsername(username);
         user.setPassword(password);
@@ -116,7 +127,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public List<String> findAllClasses() {
+    public List<?> findAllClasses() {
         return appDAO.findAllClasses();
     }
 
@@ -246,6 +257,16 @@ public class AppServiceImpl implements AppService {
         appDAO.deleteGrade(id);
     }
 
+    @Override
+    public float calculateMean(Student student, Subject subject) {
+        float sum =0f;
+        List<?> grades = getStudentsGradesFromSubject(student, subject);
+        for (Object o: grades){
+            Grade grade = (Grade) o;
+            sum += grade.getGrade();
+        }
+        return sum/ grades.size();
+    }
 
     public String generateUsername(String firstName, String lastName, boolean isAStudent, int i) {
         String username = firstName.toLowerCase() + "." + lastName.toLowerCase();
@@ -263,5 +284,19 @@ public class AppServiceImpl implements AppService {
         } else {
             return username;
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = appDAO.findUserByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Invalid username or password.");
+        }
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+                mapRolesToAuthorities(user.getAuthorities()));
+    }
+
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Authority> authorities) {
+        return authorities.stream().map(authority -> new SimpleGrantedAuthority(authority.getAuthority())).collect(Collectors.toList());
     }
 }
