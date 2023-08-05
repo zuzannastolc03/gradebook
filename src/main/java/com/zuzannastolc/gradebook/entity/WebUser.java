@@ -1,10 +1,16 @@
 package com.zuzannastolc.gradebook.entity;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 
 public class WebUser {
+    @Email
+    @NotBlank
     private String username;
 
+    @NotBlank
     private String password;
 
     private List<String> authorities;

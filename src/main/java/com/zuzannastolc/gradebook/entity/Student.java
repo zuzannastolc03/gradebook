@@ -2,6 +2,8 @@ package com.zuzannastolc.gradebook.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +16,13 @@ public class Student {
     @Column(name = "student_id")
     private int studentId;
     @Column(name = "first_name")
+    @Pattern(regexp = "^[A-Z][a-z]*$", message = "Invalid first name.")
+    @NotBlank
     private String firstName;
+
     @Column(name = "last_name")
+    @Pattern(regexp = "^[A-Z][a-z]*$", message = "Invalid last name.")
+    @NotBlank
     private String lastName;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})

@@ -3,6 +3,7 @@ package com.zuzannastolc.gradebook.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,11 @@ public class User {
     @Column(name = "user_id")
     private int userId;
     @Column(name = "username")
+    @Email(message = "Invalid e-mail address.")
+    @NotBlank
     private String username;
     @Column(name = "password")
+    @NotBlank
     private String password;
     @Column(name = "enabled")
     private boolean enabled;

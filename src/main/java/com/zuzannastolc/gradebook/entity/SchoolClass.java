@@ -2,6 +2,8 @@ package com.zuzannastolc.gradebook.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,8 @@ public class SchoolClass {
     @Column(name = "class_id")
     private int classId;
     @Column(name = "class_name")
+    @Pattern(regexp = "^(?:[1-9]|1[0-2])[a-z]$", message = "Invalid class name.")
+    @NotBlank
     private String className;
     @OneToMany(mappedBy = "schoolClass",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
