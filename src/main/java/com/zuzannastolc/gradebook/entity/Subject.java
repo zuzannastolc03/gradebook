@@ -2,6 +2,7 @@ package com.zuzannastolc.gradebook.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,9 @@ public class Subject {
     @Column(name = "subject_id")
     private int subjectId;
     @Column(name = "subject_name")
+    @Size(min = 3, max = 15)
+    @Pattern(regexp="^(?:[a-zA-Z]+(?:\\s[a-zA-Z]+)*)?$",message = "Invalid subject name.")
+    @NotBlank
     private String subjectName;
 
     @ManyToMany(fetch = FetchType.LAZY,

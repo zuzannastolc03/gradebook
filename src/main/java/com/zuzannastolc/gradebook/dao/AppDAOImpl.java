@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,24 +22,12 @@ public class AppDAOImpl implements AppDAO {
 
     @Override
     public String getLoggedUsername(Authentication authentication) {
-        String username;
-        try {
-            username = authentication.getName();
-        } catch (Exception ex) {
-            username = "Nobody has logged in!";
-        }
-        return username;
+        return authentication.getName();
     }
 
     @Override
     public String getLoggedAuthorities(Authentication authentication) {
-        String authorities;
-        try {
-            authorities = authentication.getAuthorities().toString();
-        } catch (Exception ex) {
-            authorities = "Nobody has logged in!";
-        }
-        return authorities;
+        return authentication.getAuthorities().toString();
     }
 
     @Override
@@ -52,7 +39,7 @@ public class AppDAOImpl implements AppDAO {
     public User findUserByUsername(String username) {
         Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.users where username = :username", User.class);
         theQuery.setParameter("username", username);
-        User user = null;
+        User user;
         try {
             user = (User)theQuery.getSingleResult();
         } catch (Exception e) {
@@ -96,7 +83,7 @@ public class AppDAOImpl implements AppDAO {
     public SchoolClass findClassByClassName(String className) {
         Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.classes where classes.class_name = :className", SchoolClass.class);
         theQuery.setParameter("className", className);
-        SchoolClass schoolClass = null;
+        SchoolClass schoolClass;
         try {
             schoolClass = (SchoolClass) theQuery.getSingleResult();
         } catch (Exception ex) {
@@ -123,7 +110,7 @@ public class AppDAOImpl implements AppDAO {
     public Subject findSubjectBySubjectName(String subjectName) {
         Query theQuery = entityManager.createNativeQuery("SELECT * FROM gradebook.subjects where subject_name = :subjectName", Subject.class);
         theQuery.setParameter("subjectName", subjectName);
-        Subject subject = null;
+        Subject subject;
         try {
             subject = (Subject) theQuery.getSingleResult();
         } catch (Exception e) {

@@ -12,9 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +23,9 @@ public class AppServiceImpl implements AppService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AppServiceImpl(AppDAO appDAO) {
+    public AppServiceImpl(AppDAO appDAO, PasswordEncoder passwordEncoder) {
         this.appDAO = appDAO;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -145,15 +144,6 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public List<?> getStudentsInClass(String className) {
-        SchoolClass schoolClass = null;
-        try {
-            schoolClass = findClassByClassName(className);
-        } catch (Exception ex) {
-            schoolClass = null;
-        }
-        if (schoolClass == null) {
-            return new ArrayList<String>(Collections.singleton("Class: " + className + " doesn't exist."));
-        }
         return appDAO.getEnabledStudentsInClass(className);
     }
 
@@ -171,7 +161,7 @@ public class AppServiceImpl implements AppService {
     @Override
     public Teacher findTeacherByUsername(String username) {
         User user = findUserByUsername(username);
-        Teacher teacher = null;
+        Teacher teacher;
         try {
             teacher = user.getTeacher();
         } catch (Exception ex) {
@@ -183,7 +173,7 @@ public class AppServiceImpl implements AppService {
     @Override
     public Student findStudentByUsername(String username) {
         User user = findUserByUsername(username);
-        Student student = null;
+        Student student;
         try {
             student = user.getStudent();
         } catch (Exception ex) {

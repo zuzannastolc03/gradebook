@@ -1,6 +1,8 @@
 package com.zuzannastolc.gradebook.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "authorities")
@@ -10,6 +12,7 @@ public class Authority {
     @Column(name = "authority_id")
     private int authorityId;
     @Column(name = "authority")
+    @Pattern(regexp = "^ROLE_[A-Z]+$", message = "Invalid authority.")
     private String authority;
 
     public Authority() {

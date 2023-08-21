@@ -2,6 +2,8 @@ package com.zuzannastolc.gradebook.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "grades")
@@ -11,6 +13,8 @@ public class Grade {
     @Column(name = "grade_id")
     private int gradeId;
     @Column(name = "grade")
+    @Pattern(regexp = "^[1-6]$", message = "Invalid grade.")
+    @Size(min = 1, max = 1)
     private int grade;
     @Column(name = "description")
     private String description;

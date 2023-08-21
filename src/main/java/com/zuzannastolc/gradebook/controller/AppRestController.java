@@ -2,16 +2,16 @@ package com.zuzannastolc.gradebook.controller;
 
 import com.zuzannastolc.gradebook.entity.*;
 import com.zuzannastolc.gradebook.service.AppService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+
 
 @RestController
 public class AppRestController {
@@ -22,33 +22,39 @@ public class AppRestController {
         this.appService = appService;
     }
 
+    @Operation(summary = "Home page.")
     @GetMapping("/")
     public String homePage() {
         return "This is a home page of a gradebook.";
     }
 
+    @Operation(summary = "Home page of teachers' section.")
     @GetMapping("/teachers")
     public String teachersSection() {
         return "Welcome to teachers' section!";
     }
 
+    @Operation(summary = "Home page of teachers' section.")
     @GetMapping("/students")
     public String studentsSection() {
         return "Welcome to students' section!";
     }
 
+    @Operation(summary = "Gets data about who is logged in.")
     @GetMapping("/logged_username")
     public String getLoggedUsername(Authentication authentication) {
         return appService.getLoggedUsername(authentication);
     }
 
+    @Operation(summary = "Gets data about logged in person's authorities.")
     @GetMapping("/logged_authorities")
     public String getLoggedAuthorities(Authentication authentication) {
         return appService.getLoggedAuthorities(authentication);
     }
 
+    @Operation(summary = "Adds a new user with no connection to teachers or students.")
     @PostMapping("/add_new_user")
-    public ResponseEntity<?> addNewUser(@RequestBody WebUser webUser) {
+    public ResponseEntity<?> addNewUser(@Valid @RequestBody WebUser webUser) {
         String username = webUser.getUsername();
         User user = appService.findUserByUsername(username);
         if (user != null) {
@@ -60,8 +66,9 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Adds a new student with adequate inserts to users and authorities tables.")
     @PostMapping("/add_new_student")
-    public ResponseEntity<?> addNewStudent(@RequestBody Student student, @RequestParam String className) {
+    public ResponseEntity<?> addNewStudent(@Valid @RequestBody Student student, @RequestParam String className) {
         SchoolClass schoolClass = appService.findClassByClassName(className);
         if (schoolClass == null) {
             String errorMsg = "Class: " + className + " doesn't exist.";
@@ -72,13 +79,15 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Adds a new teacher with adequate inserts to users and authorities tables.")
     @PostMapping("/add_new_teacher")
-    public ResponseEntity<?> addNewTeacher(@RequestBody Teacher teacher) {
+    public ResponseEntity<?> addNewTeacher(@Valid @RequestBody Teacher teacher) {
         appService.addNewTeacher(teacher);
         String msg = "Added a new teacher: " + teacher.getUser().getUsername();
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Disables a user.")
     @PutMapping("/disable_user")
     public ResponseEntity<?> disableUser(@RequestParam String username) {
         User user = appService.findUserByUsername(username);
@@ -94,6 +103,7 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Changes password of a logged in user.")
     @PutMapping("/change_password")
     public ResponseEntity<?> changePassword(Authentication authentication, @RequestParam String newPassword) {
         String username = appService.getLoggedUsername(authentication);
@@ -103,8 +113,9 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Updates student's personal data with adequate changes to username and password.")
     @PutMapping("/update_student")
-    public ResponseEntity<?> updateStudent(@RequestBody Student student, @RequestParam String username) {
+    public ResponseEntity<?> updateStudent(@Valid @RequestBody Student student, @RequestParam String username) {
         User user = appService.findUserByUsername(username);
         if (user == null) {
             String errorMsg = "User: " + username + " doesn't exist.";
@@ -120,8 +131,9 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Updates teacher's personal data with adequate changes to username and password.")
     @PutMapping("/update_teacher")
-    public ResponseEntity<?> updateTeacher(@RequestBody Teacher teacher, @RequestParam String username) {
+    public ResponseEntity<?> updateTeacher(@Valid @RequestBody Teacher teacher, @RequestParam String username) {
         User user = appService.findUserByUsername(username);
         if (user == null) {
             String errorMsg = "User: " + username + " doesn't exist.";
@@ -137,8 +149,9 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Adds a new available class to the list.")
     @PostMapping("/add_new_class")
-    public ResponseEntity<?> addNewClass(@RequestBody SchoolClass schoolClass) {
+    public ResponseEntity<?> addNewClass(@Valid @RequestBody SchoolClass schoolClass) {
         SchoolClass tempSchoolClass = appService.findClassByClassName(schoolClass.getClassName());
         if (tempSchoolClass != null) {
             String errorMsg = "Class name: " + schoolClass.getClassName() + " already exists.";
@@ -150,18 +163,25 @@ public class AppRestController {
     }
 
 
+    @Operation(summary = "Gets a list of all classes in school.")
     @GetMapping("/classes_list")
     public List<?> findAllClasses() {
         return appService.findAllClasses();
     }
 
+    @Operation(summary = "Gets a list of all students in an indicated class.")
     @GetMapping("/students_in_class")
     public List<?> getStudentsInClass(@RequestParam String className) {
+        SchoolClass schoolClass = appService.findClassByClassName(className);
+        if (schoolClass == null) {
+            throw new RuntimeException("Class: " + className + " doesn't exist.");
+        }
         return appService.getStudentsInClass(className);
     }
 
+    @Operation(summary = "Adds a new subject to the list.")
     @PostMapping("/add_new_subject")
-    public ResponseEntity<?> addNewSubject(@RequestBody Subject subject) {
+    public ResponseEntity<?> addNewSubject(@Valid @RequestBody Subject subject) {
         Subject tempSubject = appService.findSubjectBySubjectName(subject.getSubjectName());
         if (tempSubject != null) {
             String errorMsg = "Subject name: " + subject.getSubjectName() + " already exists.";
@@ -172,6 +192,7 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Assigns a teacher to a subject.")
     @PostMapping("/assign_teacher_to_subject")
     public ResponseEntity<?> assignTeacherToSubject(@RequestParam String username, @RequestParam String subjectName) {
         Teacher teacher = appService.findTeacherByUsername(username);
@@ -195,16 +216,26 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Gets a list of all subjects, that an indicated teacher is in charge of.")
     @GetMapping("/list_of_teachers_subjects")
-    public List<Subject> getListOfTeachersSubjects(Authentication authentication) {
-        String username = appService.getLoggedUsername(authentication);
-        Teacher teacher = appService.findTeacherByUsername(username);
+    public List<Subject> getListOfTeachersSubjects(@RequestParam String username) {
+        User user = appService.findUserByUsername(username);
+        if (user == null) {
+            String errorMsg = "User: " + username + " doesn't exist.";
+            throw new RuntimeException(errorMsg);
+        }
+        Teacher teacher = user.getTeacher();
+        if (teacher == null) {
+            String errorMsg = "Something went wrong. Probably indicated user is not a teacher.";
+            throw new RuntimeException(errorMsg);
+        }
         if (!teacher.getUser().isEnabled()) {
             throw new RuntimeException("Teacher: " + username + "doesn't teach anymore.");
         }
         return appService.getListOfTeachersSubjects(teacher);
     }
 
+    @Operation(summary = "Gets a list of all teachers, that teach an indicated subject.")
     @GetMapping("/list_of_subjects_teachers")
     public List<Teacher> getListOfSubjectsTeachers(@RequestParam String subjectName) {
         Subject subject = appService.findSubjectBySubjectName(subjectName);
@@ -214,6 +245,7 @@ public class AppRestController {
         return appService.getListOfSubjectsTeachers(subject);
     }
 
+    @Operation(summary = "Assigns an indicated class to a particular subject.")
     @PostMapping("/assign_class_to_subject")
     public ResponseEntity<?> assignClassToSubject(@RequestParam String className, @RequestParam String subjectName) {
         SchoolClass schoolClass = appService.findClassByClassName(className);
@@ -237,6 +269,7 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Gets a list of all subjects, that students from a logged in student class learn.")
     @GetMapping("/list_of_classes_subjects")
     public List<Subject> getListOfClassesSubjects(Authentication authentication) {
         String username = appService.getLoggedUsername(authentication);
@@ -245,6 +278,7 @@ public class AppRestController {
         return appService.getListOfClassesSubjects(schoolClass);
     }
 
+    @Operation(summary = "Gets a list of all classes, from which students learn an indicated subject.")
     @GetMapping("/list_of_subjects_classes")
     public List<SchoolClass> getListOfSubjectsClasses(@RequestParam String subjectName) {
         Subject subject = appService.findSubjectBySubjectName(subjectName);
@@ -254,6 +288,7 @@ public class AppRestController {
         return appService.getListOfSubjectsClasses(subject);
     }
 
+    @Operation(summary = "Gets a list of grades from an indicated subject of a logged in student.")
     @GetMapping("/list_of_my_grades_from_subject")
     public List<?> getStudentsGradesFromSubject(Authentication authentication, @RequestParam String subjectName) {
         String username = appService.getLoggedUsername(authentication);
@@ -271,6 +306,7 @@ public class AppRestController {
         return appService.getStudentsGradesFromSubject(student, subject);
     }
 
+    @Operation(summary = "Gets a list of grades of an indicated student from a particular subject.")
     @GetMapping("/list_of_students_grades_from_subject")
     public List<?> getStudentsGradesFromSubject(@RequestParam String username, @RequestParam String subjectName) {
         User user = appService.findUserByUsername(username);
@@ -293,8 +329,9 @@ public class AppRestController {
         return appService.getStudentsGradesFromSubject(student, subject);
     }
 
+    @Operation(summary = "Adds a new grade for a given student from particular subject by a logged in teacher.")
     @PostMapping("/add_new_grade")
-    public ResponseEntity<?> addNewGrade(@RequestBody Grade grade, @RequestParam String subjectName, @RequestParam String studentsUsername, Authentication authentication) {
+    public ResponseEntity<?> addNewGrade(@Valid @RequestBody Grade grade, @RequestParam String subjectName, @RequestParam String studentsUsername, Authentication authentication) {
         Subject subject = appService.findSubjectBySubjectName(subjectName);
         if (subject == null) {
             String errorMsg = "Subject: " + subjectName + " doesn't exists.";
@@ -317,8 +354,9 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Changes a given grade.")
     @PutMapping("/update_grade")
-    public ResponseEntity<?> updateGrade(@RequestBody Grade grade, @RequestParam int gradeId, Authentication authentication) {
+    public ResponseEntity<?> updateGrade(@Valid @RequestBody Grade grade, @RequestParam int gradeId, Authentication authentication) {
         Grade tempGrade = appService.findGradeById(gradeId);
         if (tempGrade == null) {
             String errorMsg = "Grade id: " + gradeId + " doesn't exists.";
@@ -337,6 +375,7 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Deletes a grade with a given ID.")
     @DeleteMapping("/delete_grade")
     public ResponseEntity<?> deleteGrade(Authentication authentication, @RequestParam int gradeId) {
         Grade grade = appService.findGradeById(gradeId);
@@ -355,6 +394,7 @@ public class AppRestController {
         return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
 
+    @Operation(summary = "Gets grades mean of a logged in student from a particular subject.")
     @GetMapping("/my_mean_from_subject")
     public Float getStudentsMeanFromSubject(Authentication authentication, @RequestParam String subjectName) {
         String username = appService.getLoggedUsername(authentication);
@@ -372,6 +412,7 @@ public class AppRestController {
         return appService.calculateMean(student, subject);
     }
 
+    @Operation(summary = "Gets grades mean of a particular student from an indicated subject.")
     @GetMapping("/mean_of_students_grades_from_subject")
     public Float getStudentsMeanFromSubject(@RequestParam String username, @RequestParam String subjectName) {
         User user = appService.findUserByUsername(username);
